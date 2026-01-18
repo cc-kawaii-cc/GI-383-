@@ -10,16 +10,13 @@ public class WordManager : MonoBehaviour
 
     void Update()
     {
-        // รับค่าปุ่มที่กดมาทั้งหมดใน Frame นั้น
         string input = Input.inputString;
-
         if (string.IsNullOrEmpty(input)) return;
 
         foreach (char letter in input)
         {
             if (activeWord != null)
             {
-                // ตรวจสอบตัวถัดไป (รวมถึงสระและวรรณยุกต์)
                 if (activeWord.GetNextLetter() == letter)
                 {
                     activeWord.TypeLetter();
@@ -28,7 +25,6 @@ public class WordManager : MonoBehaviour
             }
             else
             {
-                // ถ้ายังไม่มีคำที่พิมอยู่ ให้หาคำที่ขึ้นต้นด้วยตัวนั้น
                 foreach (Word word in words)
                 {
                     if (word.GetNextLetter() == letter)
@@ -41,9 +37,18 @@ public class WordManager : MonoBehaviour
                 }
             }
 
-            // เช็คว่าพิมครบคำหรือยัง
+            // --- จุดที่ต้องแก้ไข: เช็คพิมครบถ้วนที่นี่ ---
             if (activeWord != null && activeWord.WordTyped())
             {
+                // ตรวจสอบว่าคำพิเศษหรือไม่
+                if (activeWord.isSpecial)
+                {
+                    // ตรวจสอบก่อนว่ามี ProgressManager ใน Scene หรือไม่เพื่อป้องกัน Error
+                    ProgressManager pm = FindObjectOfType<ProgressManager>();
+                    if (pm != null) pm.AddProgress();
+                }
+            
+                // ทำลายผี
                 activeWord.GetEnemyTransform().GetComponent<WordDisplay>().DestroyEnemy();
                 words.Remove(activeWord);
                 activeWord = null;
