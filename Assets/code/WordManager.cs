@@ -8,20 +8,32 @@ public class WordManager : MonoBehaviour
     public Transform shootPoint;
     private Word activeWord;
 
-    void Update() {
-        if (string.IsNullOrEmpty(Input.inputString)) return; // ถ้าไม่ได้กดอะไรเลยให้ข้ามไป
+    void Update()
+    {
+        // รับค่าปุ่มที่กดมาทั้งหมดใน Frame นั้น
+        string input = Input.inputString;
 
-        foreach (char letter in Input.inputString) {
-            if (activeWord != null) {
-                if (activeWord.GetNextLetter() == letter) {
+        if (string.IsNullOrEmpty(input)) return;
+
+        foreach (char letter in input)
+        {
+            if (activeWord != null)
+            {
+                // ตรวจสอบตัวถัดไป (รวมถึงสระและวรรณยุกต์)
+                if (activeWord.GetNextLetter() == letter)
+                {
                     activeWord.TypeLetter();
                     Shoot();
                 }
-            } else {
-                // ค้นหาคำที่มีอยู่
-                for (int i = 0; i < words.Count; i++) {
-                    if (words[i].GetNextLetter() == letter) {
-                        activeWord = words[i];
+            }
+            else
+            {
+                // ถ้ายังไม่มีคำที่พิมอยู่ ให้หาคำที่ขึ้นต้นด้วยตัวนั้น
+                foreach (Word word in words)
+                {
+                    if (word.GetNextLetter() == letter)
+                    {
+                        activeWord = word;
                         activeWord.TypeLetter();
                         Shoot();
                         break;
@@ -29,9 +41,10 @@ public class WordManager : MonoBehaviour
                 }
             }
 
-            // ตรวจสอบว่าพิมพ์จบคำหรือยัง
-            if (activeWord != null && activeWord.WordTyped()) {
-                activeWord.GetEnemyTransform().GetComponent<WordDisplay>().DestroyEnemy(); // สั่งผีตาย
+            // เช็คว่าพิมครบคำหรือยัง
+            if (activeWord != null && activeWord.WordTyped())
+            {
+                activeWord.GetEnemyTransform().GetComponent<WordDisplay>().DestroyEnemy();
                 words.Remove(activeWord);
                 activeWord = null;
             }
