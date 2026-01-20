@@ -9,7 +9,7 @@ public class PlayerHealth : MonoBehaviour
     [Header("References")]
     public Slider healthBar;
     public GameTimer gameTimer; 
-    // public GameManager gameManager; // (ถ้าใช้ GameManager แทน GameTimer ให้เปิดอันนี้)
+    // public GameManager gameManager; // ไม่ต้องใช้ตัวแปรนี้แล้ว เพราะเราเรียกผ่าน instance
 
     void Start()
     {
@@ -30,14 +30,19 @@ public class PlayerHealth : MonoBehaviour
         if (health <= 0) {
             Debug.Log("Game Over!");
             
-            // ถ้าใช้ GameTimer
-            if(gameTimer != null) gameTimer.StopTimer();
+            if (GameManager.instance != null) 
+            {
+                GameManager.instance.GameOver();
+            }
+            else
+            {
+                Debug.LogError("หา GameManager ไม่เจอ! อย่าลืมสร้าง GameManager ในฉากครับ");
+            }
         }
     }
 
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.CompareTag("Enemy")) {
-            // ถ้าชนมอนสเตอร์ ให้ลดเลือด (ปรับค่าความแรงได้ตรงนี้)
             TakeDamage(10f); 
             Destroy(other.gameObject);
         }
