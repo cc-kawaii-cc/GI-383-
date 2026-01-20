@@ -1,34 +1,55 @@
 using UnityEngine;
 using TMPro;
-using System.Collections; // ต้องใช้สำหรับ Coroutine
+using System.Collections; 
 
 public class WordDisplay : MonoBehaviour
 {
     public TextMeshProUGUI textDisplay;
-    private Color originalColor = Color.white; // สีปกติ (ขาว)
+    private Color originalColor = Color.white; 
+    
+    // เก็บตัวแปร Coroutine ไว้เพื่อสั่งหยุดถ้ามีการพิมพ์ซ้อนกันเร็วๆ (กันสีเพี้ยน)
+    private Coroutine colorCoroutine; 
 
     public void SetWord(string word) {
         textDisplay.text = word;
-        originalColor = textDisplay.color; // จำสีเดิมไว้
+        // เช็คว่า textDisplay มีค่าไหม กัน Error
+        if (textDisplay != null)
+        {
+            originalColor = textDisplay.color; 
+        }
     }
 
     public void RemoveLetter() {
+        if (textDisplay == null) return;
+
         textDisplay.text = textDisplay.text.Remove(0, 1);
-        textDisplay.color = Color.green; // พิมพ์ถูกเป็นสีเขียว
+        
+        // เปลี่ยนจากเปลี่ยนสีเฉยๆ เป็นสั่งกระพริบเขียว
+        FlashColor(Color.green);
     }
 
     public void DestroyEnemy() {
         Destroy(gameObject);
     }
 
-    //ฟังก์ชันทำให้ตัวอักษรกระพริบสีแดง
     public void FlashRed() {
-        StartCoroutine(FlashColorRoutine());
+        // สั่งกระพริบแดง
+        FlashColor(Color.red);
     }
 
-    IEnumerator FlashColorRoutine() {
-        textDisplay.color = Color.red; // เปลี่ยนเป็นแดง
-        yield return new WaitForSeconds(0.15f); // ค้างไว้แป๊บนึง
-        textDisplay.color = originalColor; // กลับมาสีเดิม
+    // ฟังก์ชันกลางสำหรับจัดการเปลี่ยนสี (ใช้ร่วมกันทั้งแดงและเขียว)
+    void FlashColor(Color colorToFlash) {
+        if (textDisplay == null) return;
+
+        // ถ้ากำลังกระพริบสีอื่นอยู่ ให้หยุดก่อน แล้วเริ่มสีใหม่ทันที (พิมพ์รัวจะได้ไม่หน่วง)
+        if (colorCoroutine != null) StopCoroutine(colorCoroutine);
+        
+        colorCoroutine = StartCoroutine(FlashRoutine(colorToFlash));
+    }
+
+    IEnumerator FlashRoutine(Color colorToFlash) {
+        textDisplay.color = colorToFlash;       // เปลี่ยนสีตามที่สั่ง (เขียว/แดง)
+        yield return new WaitForSeconds(0.1f);  // ค้างไว้ 0.1 วินาที (ปรับได้)
+        textDisplay.color = originalColor;      // กลับมาสีเดิม
     }
 }
