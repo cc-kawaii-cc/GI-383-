@@ -6,15 +6,21 @@ public class WordDisplay : MonoBehaviour
 {
     public TextMeshProUGUI textDisplay;
     private Color originalColor = Color.white; 
-    
-    // เก็บตัวแปร Coroutine ไว้เพื่อสั่งหยุดถ้ามีการพิมพ์ซ้อนกันเร็วๆ (กันสีเพี้ยน)
     private Coroutine colorCoroutine; 
 
-    public void SetWord(string word) {
-        textDisplay.text = word;
-        // เช็คว่า textDisplay มีค่าไหม กัน Error
+    void Start()
+    {
         if (textDisplay != null)
         {
+            originalColor = textDisplay.color; 
+        }
+    }
+
+    public void SetWord(string word) {
+        if (textDisplay != null) 
+        {
+            textDisplay.text = word;
+            // อัปเดตสีตั้งต้นใหม่ เผื่อกรณีสลับไปใช้ UI Text
             originalColor = textDisplay.color; 
         }
     }
@@ -23,8 +29,6 @@ public class WordDisplay : MonoBehaviour
         if (textDisplay == null) return;
 
         textDisplay.text = textDisplay.text.Remove(0, 1);
-        
-        // เปลี่ยนจากเปลี่ยนสีเฉยๆ เป็นสั่งกระพริบเขียว
         FlashColor(Color.green);
     }
 
@@ -33,23 +37,34 @@ public class WordDisplay : MonoBehaviour
     }
 
     public void FlashRed() {
-        // สั่งกระพริบแดง
         FlashColor(Color.red);
     }
 
-    // ฟังก์ชันกลางสำหรับจัดการเปลี่ยนสี (ใช้ร่วมกันทั้งแดงและเขียว)
     void FlashColor(Color colorToFlash) {
         if (textDisplay == null) return;
-
-        // ถ้ากำลังกระพริบสีอื่นอยู่ ให้หยุดก่อน แล้วเริ่มสีใหม่ทันที (พิมพ์รัวจะได้ไม่หน่วง)
         if (colorCoroutine != null) StopCoroutine(colorCoroutine);
-        
         colorCoroutine = StartCoroutine(FlashRoutine(colorToFlash));
     }
 
     IEnumerator FlashRoutine(Color colorToFlash) {
-        textDisplay.color = colorToFlash;       // เปลี่ยนสีตามที่สั่ง (เขียว/แดง)
-        yield return new WaitForSeconds(0.1f);  // ค้างไว้ 0.1 วินาที (ปรับได้)
-        textDisplay.color = originalColor;      // กลับมาสีเดิม
+        textDisplay.color = colorToFlash;       
+        yield return new WaitForSeconds(0.1f);  
+        textDisplay.color = originalColor;      
+    }
+
+    // ✅ เพิ่มฟังก์ชันนี้: เมื่อมอนสเตอร์ตัวนี้ถูกทำลาย (ตาย/ชนะ)
+    private void OnDestroy()
+    {
+        // เช็คว่า TextDisplay ยังอยู่ไหม (กัน Error)
+        if (textDisplay != null)
+        {
+            // เช็คว่า Text นี้เป็น "UI บนหน้าจอ" หรือไม่?
+            // (ถ้า Text ไม่ได้เป็นลูกน้องของตัวมอนสเตอร์ แปลว่าเป็น UI ที่เราลากมาใส่)
+            if (textDisplay.transform.parent != transform)
+            {
+                textDisplay.text = ""; // ลบข้อความทิ้ง
+                textDisplay.gameObject.SetActive(false); // ซ่อน Text ไปเลย
+            }
+        }
     }
 }

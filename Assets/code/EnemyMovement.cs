@@ -2,15 +2,15 @@ using UnityEngine;
 
 public class EnemyMovement : MonoBehaviour
 {
-    [Header("Movement Settings")]
-    public float moveSpeed = 1.5f; // ความเร็วปกติ
-    public float stopDistance = 0.1f; // ระยะหยุดก่อนชน (เผื่อไว้)
-
+    [Header("Stats")]
+    public float moveSpeed = 1.5f; 
+    public float damage = 10f; // เพิ่มตัวแปรนี้ (ปรับใน Unity ได้เลย)
+    
+    public float stopDistance = 0.1f; 
     private Transform player;
 
     void Start()
     {
-        // หาตัวผู้เล่นอัตโนมัติ
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
         {
@@ -22,20 +22,11 @@ public class EnemyMovement : MonoBehaviour
     {
         if (player != null)
         {
-            // คำนวณระยะห่าง
             float distance = Vector2.Distance(transform.position, player.position);
-
-            // ถ้ายังไม่ถึงตัวผู้เล่น ให้เดินต่อ
             if (distance > stopDistance)
             {
                 transform.position = Vector2.MoveTowards(transform.position, player.position, moveSpeed * Time.deltaTime);
             }
         }
-    }
-
-    // ฟังก์ชันสำหรับปรับความเร็วตอนเกิด (เผื่อ WordSpawner อยากสั่ง)
-    public void SetSpeed(float newSpeed)
-    {
-        moveSpeed = newSpeed;
     }
 }

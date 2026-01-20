@@ -10,31 +10,36 @@ public class WordSpawner : MonoBehaviour
 
     [Header(" Boss Settings")]
     public GameObject bossPrefab;         
-    
-    [Tooltip("ใส่ประโยคยาวๆ ที่จะให้บอสพูดตรงนี้")]
     [TextArea(3, 10)] 
     public string bossWord = "นะโมพุทธายะ สังคะโต อะระหัง (พิมพ์ยาวๆเพื่อปราบ)"; 
+    
+    //  เพิ่มช่องนี้สำหรับลาก Text บนหน้าจอมาใส่
+    [Header(" Boss UI Reference")]
+    public TextMeshProUGUI bossUIText; 
 
     [Header(" Enemy Prefabs")]
     public GameObject smallEnemyPrefab;   
     public GameObject mediumEnemyPrefab;  
     public GameObject bigEnemyPrefab;     
 
-    [Header("🔗 References")]
-    public WordManager wordManager;
-    public List<string> wordBank = new List<string>();
-    
-    // ไม่ใช้ spawnPoints แบบเดิมแล้ว
-    // public Transform[] spawnPoints; 
+    [Header(" Word Banks (แยกความยาก)")]
+    public List<string> easyWords = new List<string>() { "กา", "ไก่", "งู", "ปู", "มด" };
+    public List<string> mediumWords = new List<string>() { "วิญญาณ", "ความตาย", "ปีศาจ", "อาฆาต" };
+    public List<string> hardWords = new List<string>() { "สัมภเวสี", "กุศลผลบุญ", "อสุรกาย", "มหานคร" };
 
-    [Header("⚡ Spawn Settings")]
-    public float spawnDelay = 3f;
-    [Range(5f, 20f)] 
-    public float spawnRadius = 10f; // ปรับขนาดวงกลมตรงนี้
+    [Header(" References")]
+    public WordManager wordManager;
+    public Transform[] spawnPoints; 
+
+    [Header(" Spawn Settings")]
+    public float spawnDelay = 2f;
+    [Range(5f, 20f)] public float spawnRadius = 12f; 
     
     // Internal Variables
     private float nextSpawnTime = 0f;
     private bool isBossActive = false;
+    private float timeSinceStart = 0f; 
+
     private int chanceSmall = 100;
     private int chanceMedium = 0;
     private int chanceBig = 0;
@@ -43,26 +48,23 @@ public class WordSpawner : MonoBehaviour
 
     void Start()
     {
-        // หาตัว Player อัตโนมัติ
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (player != null)
-        {
-            playerTransform = player.transform;
-        }
-        else
-        {
-            Debug.LogError(" ไม่เจอ Player! อย่าลืมติด Tag 'Player' ที่ตัวละครนะครับ");
-        }
+        timeSinceStart = Time.time; 
 
-        if (testBossMode)
-        {
-            SpawnBoss();
-        }
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null) playerTransform = player.transform;
+
+        // ซ่อน Boss UI ไว้ก่อนเสมอตอนเริ่มเกม
+        if (bossUIText != null) bossUIText.gameObject.SetActive(false);
+
+        if (testBossMode) SpawnBoss();
     }
 
     void Update()
     {
         if (isBossActive || testBossMode) return;
+
+        float timeAlive = Time.time - timeSinceStart;
+        UpdateGamePhase(timeAlive);
 
         if (Time.time >= nextSpawnTime)
         {
@@ -71,74 +73,33 @@ public class WordSpawner : MonoBehaviour
         }
     }
 
-    // ฟังก์ชันวาดเส้น Radius ในหน้าจอ Scene (Gizmos)
-    void OnDrawGizmosSelected()
+    void UpdateGamePhase(float time)
     {
-        // ถ้ามี Player ให้วาดรอบ Player, ถ้าไม่มีให้วาดรอบตัว Spawner เอง
-        Vector3 center = Vector3.zero;
-        
-        if (Application.isPlaying && GameObject.FindGameObjectWithTag("Player") != null)
-        {
-            center = GameObject.FindGameObjectWithTag("Player").transform.position;
-        }
-        else
-        {
-            center = transform.position;
-        }
-
-        Gizmos.color = Color.yellow; // สีของเส้น
-        Gizmos.DrawWireSphere(center, spawnRadius); // วาดเส้นวงกลม
-    }
-
-    Vector3 GetRandomSpawnPosition()
-    {
-        if (playerTransform == null) return transform.position;
-
-        // สุ่มจุดบนขอบวงกลม
-        Vector2 randomDirection = Random.insideUnitCircle.normalized;
-        Vector3 spawnPos = playerTransform.position + (Vector3)(randomDirection * spawnRadius);
-        
-        return spawnPos;
-    }
-
-    public void SpawnBoss()
-    {
-        if (isBossActive) return;
-
-        Debug.Log("BOSS BATTLE START!");
-        isBossActive = true;
-        
-        ClearAllEnemies();
-
-        if (bossPrefab != null)
-        {
-            Vector3 bossPos = GetRandomSpawnPosition();
-            GameObject bossObj = Instantiate(bossPrefab, bossPos, Quaternion.identity);
-            WordDisplay display = bossObj.GetComponentInChildren<WordDisplay>();
-            
-            Word newWord = new Word(bossWord, display, bossObj.transform, true, true);
-            wordManager.AddWord(newWord);
-        }
+        if (time < 15f) { SetEnemyTypeChance(100, 0, 0); spawnDelay = 5.0f; }
+        else if (time >= 15f && time < 30f) { SetEnemyTypeChance(70, 30, 0); spawnDelay = 4f; }
+        else if (time >= 30f && time < 60f) { SetEnemyTypeChance(50, 50, 0); spawnDelay = 3f; }
+        else if (time >= 60f && time < 90f) { SetEnemyTypeChance(40, 40, 20); spawnDelay = 2f; }
+        else if (time >= 90f) { SpawnBoss(); }
     }
 
     void SpawnEnemy()
     {
         GameObject prefabToSpawn = smallEnemyPrefab;
-        int roll = Random.Range(0, 100);
+        List<string> selectedWordBank = easyWords; 
+
+        int roll = Random.Range(0, 100); 
         
-        if (roll < chanceSmall) prefabToSpawn = smallEnemyPrefab;
-        else if (roll < chanceSmall + chanceMedium) prefabToSpawn = mediumEnemyPrefab;
-        else prefabToSpawn = bigEnemyPrefab;
+        if (roll < chanceSmall) { prefabToSpawn = smallEnemyPrefab; selectedWordBank = easyWords; }
+        else if (roll < chanceSmall + chanceMedium) { prefabToSpawn = mediumEnemyPrefab; selectedWordBank = mediumWords; }
+        else { prefabToSpawn = bigEnemyPrefab; selectedWordBank = hardWords; }
 
         if(prefabToSpawn == null) prefabToSpawn = smallEnemyPrefab;
 
-        // ใช้ตำแหน่งสุ่มจากวงกลม
         Vector3 spawnPos = GetRandomSpawnPosition();
         GameObject enemyObj = Instantiate(prefabToSpawn, spawnPos, Quaternion.identity);
 
-        string word = "";
-        if(wordBank.Count > 0) word = wordBank[Random.Range(0, wordBank.Count)];
-        else word = "Test";
+        string word = "Test";
+        if (selectedWordBank.Count > 0) word = selectedWordBank[Random.Range(0, selectedWordBank.Count)];
 
         bool isSpecial = word.EndsWith("*");
         if (isSpecial) word = word.Replace("*", "");
@@ -147,18 +108,54 @@ public class WordSpawner : MonoBehaviour
         wordManager.AddWord(new Word(word, display, enemyObj.transform, isSpecial, false));
     }
 
+    public void SpawnBoss()
+    {
+        if (isBossActive) return;
+        Debug.Log("BOSS BATTLE START!");
+        isBossActive = true;
+        ClearAllEnemies();
+
+        if (bossPrefab != null)
+        {
+            Vector3 bossPos = GetRandomSpawnPosition();
+            GameObject bossObj = Instantiate(bossPrefab, bossPos, Quaternion.identity);
+            
+            WordDisplay display = bossObj.GetComponentInChildren<WordDisplay>();
+            
+            if (bossUIText != null)
+            {
+                if (display.textDisplay != null) 
+                {
+                    display.textDisplay.gameObject.SetActive(false);
+                }
+                display.textDisplay = bossUIText;
+                
+                bossUIText.gameObject.SetActive(true);
+                bossUIText.color = Color.white;
+            }
+
+            Word newWord = new Word(bossWord, display, bossObj.transform, true, true);
+            wordManager.AddWord(newWord);
+        }
+    }
+
     void ClearAllEnemies()
     {
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
         foreach (var e in enemies) Destroy(e);
     }
-
-    public void SetSpawnRate(float delay) => spawnDelay = delay;
     
-    public void SetEnemyTypeChance(int small, int med, int big)
-    {
-        chanceSmall = small;
-        chanceMedium = med;
-        chanceBig = big;
+    public void SetEnemyTypeChance(int small, int med, int big) { chanceSmall = small; chanceMedium = med; chanceBig = big; }
+    Vector3 GetRandomSpawnPosition() {
+        if (playerTransform == null) return transform.position; 
+        Vector2 randomDirection = Random.insideUnitCircle.normalized;
+        return playerTransform.position + (Vector3)(randomDirection * spawnRadius);
+    }
+    void OnDrawGizmosSelected() {
+        Vector3 center = transform.position;
+        if (Application.isPlaying && GameObject.FindGameObjectWithTag("Player") != null)
+            center = GameObject.FindGameObjectWithTag("Player").transform.position;
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(center, spawnRadius);
     }
 }

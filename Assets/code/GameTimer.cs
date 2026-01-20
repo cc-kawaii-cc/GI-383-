@@ -1,36 +1,33 @@
 using UnityEngine;
-using TMPro; // อย่าลืมใส่เพื่อให้ใช้ TextMeshPro ได้
+using TMPro; // อย่าลืมใส่บรรทัดนี้เพื่อใช้ TextMeshPro
 
 public class GameTimer : MonoBehaviour
 {
-    public TextMeshProUGUI timerText; // ลาก Text UI มาใส่ที่นี่
-    private float startTime;
-    private bool isGameOver = false;
+    [Header("UI References")]
+    public TextMeshProUGUI timerText; // ลาก Text TMP มาใส่ตรงนี้
 
-    void Start()
-    {
-        // เริ่มนับเวลาจาก 0
-        startTime = Time.time;
-    }
+    private float elapsedTime = 0f;
+    private bool isRunning = true;
 
     void Update()
     {
-        if (isGameOver) return;
+        if (!isRunning) return;
 
-        // คำนวณเวลาที่ผ่านไป
-        float t = Time.time - startTime;
+        elapsedTime += Time.deltaTime; // นับเวลาเพิ่มขึ้นเรื่อยๆ
 
-        // แปลงเป็น นาที และ วินาที
-        string minutes = ((int)t / 60).ToString("00");
-        string seconds = (t % 60).ToString("00");
+        // คำนวณ นาที : วินาที
+        int minutes = Mathf.FloorToInt(elapsedTime / 60);
+        int seconds = Mathf.FloorToInt(elapsedTime % 60);
 
-        // อัปเดตตัวเลขบนหน้าจอ
-        timerText.text = minutes + ":" + seconds;
+        // แสดงผลในรูปแบบ 00:00
+        if (timerText != null)
+        {
+            timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+        }
     }
 
-    // ฟังก์ชันสำหรับสั่งหยุดเวลาเมื่อเกมจบ
     public void StopTimer()
     {
-        isGameOver = true;
+        isRunning = false;
     }
 }

@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 6566396055282494309}
   - component: {fileID: -3955949306282747163}
   m_Layer: 0
-  m_Name: Boss
+  m_Name: Medium
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -31,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 6.99, y: -1.82, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 1}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3736667540816736655}
@@ -82,7 +82,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 1
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0.9811321, g: 0.59503436, b: 0.35635456, a: 1}
+  m_Color: {r: 1, g: 0.9631932, b: 0.2971698, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -190,8 +190,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7ca6735105c42c438ad62e7316f9f15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 1
-  damage: 20
+  moveSpeed: 0.8
+  damage: 10
   stopDistance: 0.1
 --- !u!1 &4821357656030732831
 GameObject:
@@ -258,7 +258,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: '
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: bf8666aeb0ca75f4e840c95a739c4c4b, type: 2}
   m_sharedMaterial: {fileID: 3672625721269678870, guid: bf8666aeb0ca75f4e840c95a739c4c4b, type: 2}
@@ -301,7 +303,7 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 0
+  m_TextWrappingMode: 1
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
