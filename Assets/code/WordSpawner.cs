@@ -4,28 +4,28 @@ using TMPro;
 
 public class WordSpawner : MonoBehaviour
 {
-    [Header("🔧 Developer Mode")]
+    [Header("Developer Mode")]
     [Tooltip("ติ๊กถูกเพื่อทดสอบบอสทันที (ข้ามเล่นปกติ)")]
     public bool testBossMode = false; 
 
-    [Header("🔥 Boss Settings")]
+    [Header("Boss Settings")]
     public GameObject bossPrefab;         // ลาก Prefab บอสมาใส่ช่องนี้
     
     [Tooltip("ใส่ประโยคยาวๆ ที่จะให้บอสพูดตรงนี้")]
-    [TextArea(3, 10)] // ✅ ทำให้ช่องพิมพ์ใหญ่ขึ้น พิมพ์ได้หลายบรรทัด
+    [TextArea(3, 10)] //ทำให้ช่องพิมพ์ใหญ่ขึ้น พิมพ์ได้หลายบรรทัด
     public string bossWord = "นะโมพุทธายะ สังคะโต อะระหัง (พิมพ์ยาวๆเพื่อปราบ)"; 
 
-    [Header("👽 Enemy Prefabs")]
+    [Header("Enemy Prefabs")]
     public GameObject smallEnemyPrefab;   
     public GameObject mediumEnemyPrefab;  
     public GameObject bigEnemyPrefab;     
 
-    [Header("🔗 References")]
+    [Header("References")]
     public WordManager wordManager;
     public List<string> wordBank = new List<string>();
     public Transform[] spawnPoints;
 
-    [Header("⚡ Spawn Settings")]
+    [Header("Spawn Settings")]
     public float spawnDelay = 3f;
     
     // Internal Variables
@@ -59,7 +59,7 @@ public class WordSpawner : MonoBehaviour
     {
         if (isBossActive) return;
 
-        Debug.Log("🔥 BOSS BATTLE START! 🔥");
+        Debug.Log("BOSS BATTLE START!");
         isBossActive = true;
         
         ClearAllEnemies();
@@ -69,14 +69,14 @@ public class WordSpawner : MonoBehaviour
             GameObject bossObj = Instantiate(bossPrefab, spawnPoints[0].position, Quaternion.identity);
             WordDisplay display = bossObj.GetComponentInChildren<WordDisplay>();
             
-            // ✅ ใช้ตัวแปร bossWord ที่ประกาศไว้ข้างบน (Public) แทน
+            //ใช้ตัวแปร bossWord ที่ประกาศไว้ข้างบน (Public) แทน
             Word newWord = new Word(bossWord, display, bossObj.transform, true, true);
             
             wordManager.AddWord(newWord);
         }
         else
         {
-            Debug.LogError("❌ ลืมใส่ Boss Prefab หรือ Spawn Points ใน Inspector ครับ!");
+            Debug.LogError("ลืมใส่ Boss Prefab หรือ Spawn Points ใน Inspector ครับ!");
         }
     }
 

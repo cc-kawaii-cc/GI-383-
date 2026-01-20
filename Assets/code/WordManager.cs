@@ -6,8 +6,6 @@ public class WordManager : MonoBehaviour
     public List<Word> words = new List<Word>();
     public GameObject bulletPrefab;
     public Transform shootPoint;
-    
-    // ✅ เพิ่ม Reference ไปหา PlayerHealth
     public PlayerHealth playerHealth; 
 
     private Word activeWord;
@@ -21,20 +19,15 @@ public class WordManager : MonoBehaviour
         {
             if (activeWord != null)
             {
-                // --- กรณีมีเป้าหมายแล้ว ---
                 if (activeWord.GetNextLetter() == letter)
                 {
-                    // ✅ พิมพ์ถูก
                     activeWord.TypeLetter();
                     Shoot();
                 }
                 else
                 {
-                    // ❌ พิมพ์ผิด!!
                     if (activeWord.isBoss)
                     {
-                        // ถ้าเป็นบอส -> โดนดาเมจ 20 + ตัวอักษรแดง
-                        Debug.Log("พิมพ์ผิดใส่บอส! โดน -20 HP");
                         if(playerHealth != null) playerHealth.TakeDamage(20);
                         activeWord.TriggerWrongTyping();
                     }
@@ -42,7 +35,6 @@ public class WordManager : MonoBehaviour
             }
             else
             {
-                // --- กรณีหาเป้าหมายใหม่ ---
                 foreach (Word word in words)
                 {
                     if (word.GetNextLetter() == letter)
@@ -55,9 +47,14 @@ public class WordManager : MonoBehaviour
                 }
             }
 
-            // เช็คว่าพิมพ์จบหรือยัง
             if (activeWord != null && activeWord.WordTyped())
             {
+                // เช็คชนะ: ถ้าตัวที่พิมพ์จบคือ "Boss" -> ชนะทันที
+                if (activeWord.isBoss)
+                {
+                    if (GameManager.instance != null) GameManager.instance.Victory();
+                }
+
                 if (activeWord.isSpecial)
                 {
                     ProgressManager pm = FindObjectOfType<ProgressManager>();

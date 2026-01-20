@@ -5,7 +5,7 @@ public class Word
 {
     public string text;
     public bool isSpecial;
-    public bool isBoss; // ✅ เพิ่มตัวนี้: เช็คว่าเป็นบอสหรือไม่
+    public bool isBoss; //เพิ่มตัวนี้: เช็คว่าเป็นบอสหรือไม่
     
     private int typeIndex;
     private WordDisplay display;
@@ -17,7 +17,7 @@ public class Word
         display = _display;
         enemyTransform = _enemyTransform;
         isSpecial = _isSpecial;
-        isBoss = _isBoss; // ✅ รับค่า
+        isBoss = _isBoss; //รับค่า
         display.SetWord(text);
     }
 
@@ -32,7 +32,7 @@ public class Word
     
     public Transform GetEnemyTransform() => enemyTransform;
 
-    // ✅ ฟังก์ชันเรียกเอฟเฟกต์ตัวแดง
+    //ฟังก์ชันเรียกเอฟเฟกต์ตัวแดง
     public void TriggerWrongTyping() {
         if(display != null) display.FlashRed();
     }

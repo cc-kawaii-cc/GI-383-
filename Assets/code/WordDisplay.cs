@@ -21,7 +21,7 @@ public class WordDisplay : MonoBehaviour
         Destroy(gameObject);
     }
 
-    // ✅ ฟังก์ชันทำให้ตัวอักษรกระพริบสีแดง
+    //ฟังก์ชันทำให้ตัวอักษรกระพริบสีแดง
     public void FlashRed() {
         StartCoroutine(FlashColorRoutine());
     }
