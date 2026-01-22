@@ -75,24 +75,43 @@ public class WordManager : MonoBehaviour
             // เช็คว่าพิมพ์จบหรือยัง
             if (activeWord != null && activeWord.WordTyped())
             {
-                if (activeWord.isBoss)
-                {
-                    if (GameManager.instance != null) GameManager.instance.Victory();
-                }
+                activeWord.hp--; // ลด HP ของคำลง
 
-                if (activeWord.isSpecial)
+                if (activeWord.hp > 0)
                 {
-                    ProgressManager pm = FindObjectOfType<ProgressManager>();
-                    if (pm != null) pm.AddProgress();
+                    // กรณี HP ยังไม่หมด (เช่น Hard Word รอบแรก)
+                    activeWord.ResetWord(); // รีเซ็ตตัวชี้ตำแหน่งการพิมพ์
+
+                    // สั่งให้ Display แสดงคำเต็มใหม่อีกครั้ง
+                    if (activeWord.GetEnemyTransform() != null)
+                    {
+                        activeWord.GetEnemyTransform().GetComponent<WordDisplay>().SetWord(activeWord.text);
+                    }
+
+                    activeWord = null; // ปลดล็อคเพื่อให้เลือกเป้าหมายใหม่ได้
                 }
-            
-                if (activeWord.GetEnemyTransform() != null)
+                else
                 {
-                    activeWord.GetEnemyTransform().GetComponent<WordDisplay>().DestroyEnemy();
+                    // กรณี HP หมดแล้ว (ตายจริง)
+                    if (activeWord.isBoss)
+                    {
+                        if (GameManager.instance != null) GameManager.instance.Victory();
+                    }
+
+                    if (activeWord.isSpecial)
+                    {
+                        ProgressManager pm = FindObjectOfType<ProgressManager>();
+                        if (pm != null) pm.AddProgress();
+                    }
+
+                    if (activeWord.GetEnemyTransform() != null)
+                    {
+                        activeWord.GetEnemyTransform().GetComponent<WordDisplay>().DestroyEnemy();
+                    }
+
+                    words.Remove(activeWord);
+                    activeWord = null;
                 }
-                
-                words.Remove(activeWord);
-                activeWord = null;
             }
         }
     }

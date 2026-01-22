@@ -15,6 +15,13 @@ public class WordDisplay : MonoBehaviour
             originalColor = textDisplay.color; 
         }
     }
+    public void Setup(Word word)
+    {
+        if (textDisplay != null)
+        {
+            textDisplay.text = word.text; // กำหนดข้อความที่จะแสดง
+        }
+    }
 
     public void SetWord(string word) {
         if (textDisplay != null) 

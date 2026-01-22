@@ -53,8 +53,11 @@ public class WordSpawner : MonoBehaviour
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null) playerTransform = player.transform;
 
-        // ซ่อน Boss UI ไว้ก่อนเสมอตอนเริ่มเกม
-        if (bossUIText != null) bossUIText.gameObject.SetActive(false);
+        // แก้ไข: ให้แน่ใจว่าปิดตัว Object ทั้งยวง ไม่ใช่แค่ตัวหนังสือ
+        if (bossUIText != null) 
+        {
+            bossUIText.gameObject.SetActive(false);
+        }
 
         if (testBossMode) SpawnBoss();
     }
@@ -110,7 +113,8 @@ public class WordSpawner : MonoBehaviour
 
     public void SpawnBoss()
     {
-        if (isBossActive) return;
+        if (isBossActive && !testBossMode) return; // กันการ Spawn ซ้ำ
+    
         Debug.Log("BOSS BATTLE START!");
         isBossActive = true;
         ClearAllEnemies();
@@ -119,23 +123,34 @@ public class WordSpawner : MonoBehaviour
         {
             Vector3 bossPos = GetRandomSpawnPosition();
             GameObject bossObj = Instantiate(bossPrefab, bossPos, Quaternion.identity);
-            
+        
             WordDisplay display = bossObj.GetComponentInChildren<WordDisplay>();
-            
-            if (bossUIText != null)
+        
+            if (bossUIText != null && display != null)
             {
-                if (display.textDisplay != null) 
+                // 1. เปิด UI ก่อน
+                bossUIText.gameObject.SetActive(true);
+            
+                // 2. ซ่อน Text เดิมที่ติดมากับตัว Boss (ถ้ามี)
+                if (display.textDisplay != null && display.textDisplay != bossUIText) 
                 {
                     display.textDisplay.gameObject.SetActive(false);
                 }
+
+                // 3. เชื่อมต่อ UI กลางเข้ากับระบบ Word ของ Boss
                 display.textDisplay = bossUIText;
-                
-                bossUIText.gameObject.SetActive(true);
-                bossUIText.color = Color.white;
+            
+                // 4. บังคับให้ WordDisplay รีเฟรชข้อความทันที
+                // (สมมติว่าใน WordDisplay มีฟังก์ชันสรุปการแสดงผล)
+                // display.SetWord(bossWord); 
             }
 
+            // ส่งข้อมูลให้ WordManager
             Word newWord = new Word(bossWord, display, bossObj.transform, true, true);
             wordManager.AddWord(newWord);
+        
+            // สำคัญ: ต้องสั่งให้แสดงผลครั้งแรกทันที
+            display.Setup(newWord); // ถ้าคุณมีฟังก์ชัน Setup ใน WordDisplay ให้เรียกตรงนี้
         }
     }
 

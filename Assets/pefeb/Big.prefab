@@ -190,9 +190,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7ca6735105c42c438ad62e7316f9f15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 0.5
+  type: 2
+  moveSpeed: 0.8
   damage: 10
   stopDistance: 0.1
+  invisibleDuration: 1
+  visibleDuration: 2
+  wordCanvas: {fileID: 0}
 --- !u!1 &4821357656030732831
 GameObject:
   m_ObjectHideFlags: 0
