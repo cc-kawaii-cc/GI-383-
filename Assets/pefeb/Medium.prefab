@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 250205185620926151}
   - component: {fileID: 6566396055282494309}
   - component: {fileID: -3955949306282747163}
+  - component: {fileID: -4754134383907001951}
   m_Layer: 0
   m_Name: Medium
   m_TagString: Enemy
@@ -191,12 +192,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 1
-  moveSpeed: 0.5
+  moveSpeed: 0.3
   damage: 10
   stopDistance: 0.1
   invisibleDuration: 1
   visibleDuration: 2
   wordCanvas: {fileID: 0}
+  fadeSpeed: 2
+--- !u!225 &-4754134383907001951
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 759368613755820644}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &4821357656030732831
 GameObject:
   m_ObjectHideFlags: 0
@@ -231,8 +245,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -0.0497, y: 0}
+  m_SizeDelta: {x: 0.7622, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8042010517954211971
 CanvasRenderer:
@@ -372,8 +386,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.03, y: 1.46}
-  m_SizeDelta: {x: 2, y: 1}
+  m_AnchoredPosition: {x: 0.0031, y: 1.46}
+  m_SizeDelta: {x: 4.4522, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &3947256737465345178
 Canvas:

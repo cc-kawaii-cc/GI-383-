@@ -35,7 +35,8 @@ public class Word
 
     public char GetNextLetter() => text[typeIndex];
 
-    public void TypeLetter() {
+    public void TypeLetter() 
+    {
         typeIndex++;
         display.RemoveLetter();
     }
@@ -43,9 +44,9 @@ public class Word
     public bool WordTyped() => (typeIndex >= text.Length);
     
     public Transform GetEnemyTransform() => enemyTransform;
-
-    //ฟังก์ชันเรียกเอฟเฟกต์ตัวแดง
+    
     public void TriggerWrongTyping() {
         if(display != null) display.FlashRed();
     }
+    
 }

@@ -7,6 +7,7 @@ public class WordManager : MonoBehaviour
     public GameObject bulletPrefab;
     public Transform shootPoint;
     public PlayerHealth playerHealth; 
+    public GameObject deathVFXPrefab;
 
     private Word activeWord;
 
@@ -50,15 +51,27 @@ public class WordManager : MonoBehaviour
                     }
                     else
                     {
-                        // ไม่เจอเป้าหมายใหม่เลย -> นับว่า "พิมพ์ผิดจริง"
-                        // (ลงโทษเฉพาะถ้าเป็นบอส)
+                        // --- แก้ไขจุดนี้: ถ้าพิมพ์ผิดให้ Reset ทันที ---
+                    
+                        // 1. สั่ง Reset ตำแหน่งการพิมพ์ใน Word.cs
+                        activeWord.ResetWord(); 
+
+                        // 2. สั่งให้ WordDisplay คืนค่าตัวหนังสือเต็มคำ
+                        if (activeWord.GetEnemyTransform() != null)
+                        {
+                            activeWord.GetEnemyTransform().GetComponent<WordDisplay>().SetWord(activeWord.text);
+                        }
+
+                        // 3. ลงโทษ/แสดงผล (จอแดง)
                         if (activeWord.isBoss)
                         {
-                            Debug.Log("พิมพ์ผิดใส่บอส! โดน -20 HP");
-                            if(playerHealth != null) playerHealth.TakeDamage(20);
-                            activeWord.TriggerWrongTyping();
+                            if(playerHealth != null) playerHealth.TakeDamage(10); 
                         }
+                        activeWord.TriggerWrongTyping(); 
+                    
+                        Debug.Log("พิมพ์ผิด! ระบบ Reset คำศัพท์ให้เริ่มใหม่");
                     }
+                
                 }
             }
             else
@@ -104,6 +117,16 @@ public class WordManager : MonoBehaviour
                         if (pm != null) pm.AddProgress();
                     }
 
+                    if (activeWord.GetEnemyTransform() != null)
+                    {
+                        activeWord.GetEnemyTransform().GetComponent<WordDisplay>().DestroyEnemy();
+                    }
+                    if (deathVFXPrefab != null && activeWord.GetEnemyTransform() != null)
+                    {
+                        Instantiate(deathVFXPrefab, activeWord.GetEnemyTransform().position, Quaternion.identity);
+                    }
+
+                    // ทำลายศัตรู
                     if (activeWord.GetEnemyTransform() != null)
                     {
                         activeWord.GetEnemyTransform().GetComponent<WordDisplay>().DestroyEnemy();

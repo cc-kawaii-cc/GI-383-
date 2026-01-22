@@ -678,8 +678,8 @@ Transform:
   m_GameObject: {fileID: 223569400}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 1}
+  m_LocalPosition: {x: -0.1357, y: -0.181, z: 0}
+  m_LocalScale: {x: 2.4612741, y: 2.5693693, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1216,7 +1216,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 10
+  orthographic size: 13.821728
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1990,26 +1990,44 @@ MonoBehaviour:
   smallEnemyPrefab: {fileID: 759368613755820644, guid: 905abc24488f3a54eb794749d0379292, type: 3}
   mediumEnemyPrefab: {fileID: 759368613755820644, guid: 619f10c973eeed14890c358808fbe3e2, type: 3}
   bigEnemyPrefab: {fileID: 759368613755820644, guid: be83c186eca6e514e884091e4597c95f, type: 3}
+  ghostMomPrefab: {fileID: 759368613755820644, guid: b90ab53b5138dde4a8da5f3d442c27a9, type: 3}
   easyWords:
   - crow
   - ghost
   - go
   - you
   - they
+  - get
+  - good
+  - un
+  - pool
+  - jool
+  - hello
+  - ok
+  - new
   mediumWords:
   - element
   - chilly
   - devil
   - haunted
   - killer
+  - momom
+  - gsssted
+  - 'omg '
+  - wowwow
   hardWords:
   - optimus
   - university
   - techy
+  - kokokok
+  - dddd
+  - sssss
+  - aaaa
+  - ssss
   wordManager: {fileID: 1088451949}
   spawnPoints: []
   spawnDelay: 5
-  spawnRadius: 12
+  spawnRadius: 13.3
 --- !u!114 &1088451949
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2026,6 +2044,7 @@ MonoBehaviour:
   bulletPrefab: {fileID: 1894192711620375706, guid: 7291292bbf2c9814c83405d60cb94acc, type: 3}
   shootPoint: {fileID: 163054797}
   playerHealth: {fileID: 1428502024}
+  deathVFXPrefab: {fileID: 6052842361389789346, guid: 23eb8ff44f76cbf4ca7901a9ead95dff, type: 3}
 --- !u!4 &1088451950
 Transform:
   m_ObjectHideFlags: 0
@@ -2340,7 +2359,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 300}
+  m_AnchoredPosition: {x: 0.31824, y: 109}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1408231849
@@ -2363,7 +2382,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: BossTextUI
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2743,7 +2762,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -800, y: -500}
+  m_AnchoredPosition: {x: -321, y: -212}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1684544991
@@ -3022,10 +3041,10 @@ RectTransform:
   - {fileID: 344799330}
   m_Father: {fileID: 1720981502}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -592, y: 415}
-  m_SizeDelta: {x: 325.8622, y: 23.4198}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 205, y: -30}
+  m_SizeDelta: {x: 200, y: 15}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2003674223
 MonoBehaviour:
@@ -3132,5 +3151,5 @@ SceneRoots:
   - {fileID: 1428502023}
   - {fileID: 402559687}
   - {fileID: 1088451950}
-  - {fileID: 223569402}
   - {fileID: 2130806790}
+  - {fileID: 223569402}

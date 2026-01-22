@@ -8,8 +8,11 @@ public class EnemyMovement : MonoBehaviour
         Easy,
         Medium,
         Hard,
-        Boss
+        Boss,
+        GhostMom
+        
     }
+    private bool isWaiting = false;
 
     [Header("Enemy Settings")] public EnemyType type;
     public float moveSpeed = 1.5f;
@@ -18,9 +21,10 @@ public class EnemyMovement : MonoBehaviour
     
     [Header("Medium Type: Invisible Settings")]
     public float invisibleDuration = 1f;
-
     public float visibleDuration = 2f;
     public GameObject wordCanvas;
+    public float fadeSpeed = 2f; // ความเร็วในการจางหาย/ปรากฏ
+    private CanvasGroup wordCanvasGroup;
     private SpriteRenderer spriteRenderer;
 
     private Transform player;
@@ -28,6 +32,7 @@ public class EnemyMovement : MonoBehaviour
     void Start()
     {
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        wordCanvasGroup = GetComponentInChildren<CanvasGroup>();
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null) player = playerObj.transform;
 
@@ -35,17 +40,15 @@ public class EnemyMovement : MonoBehaviour
         if (type == EnemyType.Easy) moveSpeed *= 2f;
 
         // ถ้าเป็น Medium ให้เริ่มทำงานระบบหายตัว
-        if (type == EnemyType.Medium)
+        if (type == EnemyType.Medium) 
         {
-            // หากไม่ได้ลากใส่ใน Inspector ให้ลองหาอัตโนมัติจากในตัวมันเอง
-            if (wordCanvas == null)
-            {
-                wordCanvas = GetComponentInChildren<Canvas>()?.gameObject;
-            }
-
             StartCoroutine(InvisibilityRoutine());
         }
-
+        if (type == EnemyType.GhostMom)
+        {
+            StartCoroutine(GhostMomRoutine());
+        }
+        
     }
 
     void Update()
@@ -60,29 +63,70 @@ public class EnemyMovement : MonoBehaviour
             }
         }
     }
+    IEnumerator GhostMomRoutine()
+    {
+        isWaiting = true;
+    
+        // 1. ยืนนิ่งๆ รอ 3-5 วินาที
+        yield return new WaitForSeconds(Random.Range(3f, 5f));
+    
+        // 2. เรียกม่อนออกมา 2 ตัว
+        SummonMinions();
+    
+        // 3. เริ่มเดินเข้าหาผู้เล่น
+        isWaiting = false;
+    }
 
+    void SummonMinions()
+    {
+        WordSpawner spawner = FindObjectOfType<WordSpawner>();
+        if (spawner != null)
+        {
+            spawner.SpawnMinionAt(transform.position); // ตัวที่ 1
+            spawner.SpawnMinionAt(transform.position); // ตัวที่ 2
+            Debug.Log("Ghost Mom Summoned Minions!");
+        }
+    }
     IEnumerator InvisibilityRoutine()
     {
-        // 1. สุ่มจังหวะเริ่มต้น (Offset) เพื่อไม่ให้ทุกตัวเริ่มหายพร้อมกัน
         yield return new WaitForSeconds(Random.Range(0f, 2f));
 
         while (true)
         {
-            // --- หายตัว ---
-            if (spriteRenderer != null) spriteRenderer.enabled = false;
-            if (wordCanvas != null) wordCanvas.SetActive(false);
-        
-            // 2. สุ่มระยะเวลาที่หายไป (เช่น ระหว่าง 0.5 ถึง 1.5 วินาที)
-            float randomInvisibleTime = Random.Range(invisibleDuration * 0.5f, invisibleDuration * 1.5f);
-            yield return new WaitForSeconds(randomInvisibleTime);
+            // --- ค่อยๆ จางหาย (Fade Out) ---
+            yield return StartCoroutine(Fade(1f, 0f)); 
+            yield return new WaitForSeconds(invisibleDuration);
 
-            // --- ปรากฏตัว ---
-            if (spriteRenderer != null) spriteRenderer.enabled = true;
-            if (wordCanvas != null) wordCanvas.SetActive(true);
-        
-            // 3. สุ่มระยะเวลาที่โชว์ตัว (เช่น ระหว่าง 1 ถึง 3 วินาที)
-            float randomVisibleTime = Random.Range(visibleDuration * 0.5f, visibleDuration * 1.5f);
-            yield return new WaitForSeconds(randomVisibleTime);
+            // --- ค่อยๆ ปรากฏตัว (Fade In) ---
+            yield return StartCoroutine(Fade(0f, 1f)); 
+            yield return new WaitForSeconds(visibleDuration);
+        }
+    }
+
+// ฟังก์ชันสำหรับจัดการการจาง
+    IEnumerator Fade(float startAlpha, float endAlpha)
+    {
+        float elapsedTime = 0f;
+        while (elapsedTime < 1f)
+        {
+            elapsedTime += Time.deltaTime * fadeSpeed;
+            float currentAlpha = Mathf.Lerp(startAlpha, endAlpha, elapsedTime);
+
+            // ปรับที่ตัวมอนสเตอร์
+            if (spriteRenderer != null)
+            {
+                Color c = spriteRenderer.color;
+                c.a = currentAlpha;
+                spriteRenderer.color = c;
+            }
+
+            // ปรับที่ตัวหนังสือ (ผ่าน Canvas Group)
+            if (wordCanvasGroup != null)
+            {
+                wordCanvasGroup.alpha = currentAlpha;
+            }
+
+            yield return null;
         }
     }
 }
