@@ -1,109 +1,85 @@
+using System.Collections;
 using UnityEngine;
-using TMPro;
-using System.Collections; 
+using TMPro; // จำเป็นสำหรับการใช้ TextMeshPro
 
 public class WordDisplay : MonoBehaviour
 {
-    public TextMeshProUGUI textDisplay;
-    private Color originalColor = Color.white; 
-    private Coroutine colorCoroutine; 
+    public TMP_Text textDisplay; // ใช้ TMP_Text เพื่อรองรับทั้ง World และ UI
 
-    void Start()
+    // เปลี่ยนข้อความในจอ
+    public void SetWord(string word)
+    {
+        if (textDisplay != null) textDisplay.text = word;
+    }
+
+    // ฟังก์ชันลบตัวอักษร (พิมพ์ถูก)
+    public void RemoveLetter()
+    {
+        if (textDisplay != null && textDisplay.text.Length > 0)
+        {
+            textDisplay.text = textDisplay.text.Remove(0, 1); // ลบตัวอักษรตัวแรกออก
+            
+            // ✅ เปลี่ยนเป็นสีเขียวเมื่อพิมพ์ถูก
+            textDisplay.color = Color.green;
+            
+            // สั่งให้รีเซ็ตกลับเป็นสีเดิมหลังจากแป๊บนึง
+            StopAllCoroutines(); 
+            StartCoroutine(ResetColorDelay());
+        }
+    }
+
+    public void RemoveWord()
+    {
+        Destroy(gameObject);
+    }
+    
+    // ฟังก์ชันแจ้งเตือนพิมพ์ผิด (จอแดง/ตัวแดง)
+    public void FlashRed()
     {
         if (textDisplay != null)
         {
-            originalColor = textDisplay.color; 
-        }
-    }
-    public void Setup(Word word)
-    {
-        if (textDisplay != null)
-        {
-            textDisplay.text = word.text; // กำหนดข้อความที่จะแสดง
+            // ถ้าเป็นบอส (ที่ตัวหนังสือแดงอยู่แล้ว) อาจจะให้กระพริบเป็นขาว หรือแดงเข้ม ก็ได้
+            // แต่ในที่นี้สั่งเป็นแดงตามปกติ
+            textDisplay.color = Color.red; 
+            
+            StopAllCoroutines();
+            StartCoroutine(ResetColorDelay());
         }
     }
 
-    public void SetWord(string word) {
+    // ✅ รวมมาไว้ที่นี่อันเดียว (แก้ Error ฟังก์ชันซ้ำ)
+    IEnumerator ResetColorDelay()
+    {
+        yield return new WaitForSeconds(0.1f); // รอ 0.1 วินาที
+        
         if (textDisplay != null) 
         {
-            textDisplay.text = word;
-            // อัปเดตสีตั้งต้นใหม่ เผื่อกรณีสลับไปใช้ UI Text
-            originalColor = textDisplay.color; 
-        }
-    }
-
-    public void RemoveLetter() {
-        if (textDisplay == null) return;
-
-        textDisplay.text = textDisplay.text.Remove(0, 1);
-        FlashColor(Color.green);
-    }
-
-    public void DestroyEnemy() 
-    {
-        // 1. ตรวจสอบว่าเป็น KillMe หรือไม่ ก่อนจะถูกทำลาย
-        EnemyMovement moveScript = GetComponentInParent<EnemyMovement>();
-        if (moveScript != null && moveScript.type == EnemyMovement.EnemyType.KillMe)
-        {
-            WordSpawner spawner = FindObjectOfType<WordSpawner>();
-            if (spawner != null)
+            // เช็คว่าถ้าเป็น UI บอส (ที่ตั้ง Tag ไว้) ให้กลับเป็นสีแดงเหมือนเดิม
+            if (gameObject.CompareTag("BossUI")) 
             {
-                // ✅ สั่งให้เกิดตัวเล็กทันทีที่ตำแหน่งนี้
-                spawner.SpawnMinionAt(transform.position); 
+                textDisplay.color = Color.red; 
+            }
+            else 
+            {
+                textDisplay.color = Color.white; // ตัวธรรมดาให้กลับเป็นสีขาว
             }
         }
-
-        // 2. ทำลายมอนสเตอร์ทั้งตัว (Parent ของ Canvas)
-        if (transform.parent != null)
-        {
-            Destroy(transform.parent.gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
     }
 
-    public void FlashRed() {
-        FlashColor(Color.red);
-    }
-
-    void FlashColor(Color colorToFlash) {
-        if (textDisplay == null) return;
-        if (colorCoroutine != null) StopCoroutine(colorCoroutine);
-        colorCoroutine = StartCoroutine(FlashRoutine(colorToFlash));
-    }
-
-    IEnumerator FlashRoutine(Color colorToFlash) {
-        textDisplay.color = colorToFlash;       
-        yield return new WaitForSeconds(0.1f);  
-        textDisplay.color = originalColor;      
-    }
-
-    // ✅ เพิ่มฟังก์ชันนี้: เมื่อมอนสเตอร์ตัวนี้ถูกทำลาย (ตาย/ชนะ)
-    private void OnDestroy()
+    // ฟังก์ชันสำหรับบอส (WordSpawner เรียกใช้)
+    public void Setup(Word word)
     {
-        EnemyMovement moveScript = GetComponentInParent<EnemyMovement>();
+        SetWord(word.text);
+    }
     
-        if (moveScript != null && moveScript.type == EnemyMovement.EnemyType.KillMe)
+    public void DestroyEnemy()
+    {
+        // ถ้าเป็น UI ของบอส ให้ซ่อนแทนการทำลาย
+        if (textDisplay != null && textDisplay.gameObject.CompareTag("BossUI"))
         {
-            // เรียก WordSpawner ให้เกิดตัวง่าย 1 ตัวที่ตำแหน่งปัจจุบัน
-            WordSpawner spawner = FindObjectOfType<WordSpawner>();
-            if (spawner != null)
-            {
-                spawner.SpawnMinionAt(transform.position); // เรียกตัวเล็กออกมา
-            }
+            textDisplay.text = "";
+            textDisplay.gameObject.SetActive(false);
         }
-        // เช็คว่า TextDisplay ยังอยู่ไหม (กัน Error)
-        if (textDisplay != null)
-        {
-            // เช็คว่า Text นี้เป็น "UI บนหน้าจอ" หรือไม่?
-            // (ถ้า Text ไม่ได้เป็นลูกน้องของตัวมอนสเตอร์ แปลว่าเป็น UI ที่เราลากมาใส่)
-            if (textDisplay != null && textDisplay.transform.parent != transform)
-            {
-                textDisplay.text = "";
-                textDisplay.gameObject.SetActive(false);
-            }
-        }
+        Destroy(gameObject);
     }
 }

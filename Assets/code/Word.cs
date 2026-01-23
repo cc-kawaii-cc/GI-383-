@@ -29,8 +29,15 @@ public class Word
         display.SetWord(text);
     }
     
-    public void ResetWord() {
-        typeIndex = 0; // รีเซ็ตตำแหน่งการพิมพ์กลับไปตัวแรก
+    public void ResetWord()
+    {
+        typeIndex = 0; // รีเซ็ตตัวนับตัวอักษรกลับไปตัวแรก
+    
+        // รีเซ็ตสีตัวอักษรกลับเป็นสีขาว (ถ้ามีระบบสี)
+        if (display != null)
+        {
+            display.SetWord(text); // สั่งให้แสดงผลคำเต็มใหม่
+        }
     }
 
     public char GetNextLetter() => text[typeIndex];
