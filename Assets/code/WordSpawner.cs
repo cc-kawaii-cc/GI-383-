@@ -83,22 +83,22 @@ public class WordSpawner : MonoBehaviour
     {
         if (time < 5f) 
         { 
-            SetEnemyTypeChance(100, 0, 0, 0,kill:0,spit:0,thai:0);
+            SetEnemyTypeChance(small:100,med:0,big:0,mom:0,kill:0,spit:0,thai:0);
             spawnDelay = Random.Range(1.0f, 4.0f); 
         }
         else if (time >= 5f && time < 15f) 
         { 
-            SetEnemyTypeChance(45, 20, 0,0,kill:20,spit:0,thai:20); 
+            SetEnemyTypeChance(small:45,med:20, big:0,mom:0,kill:20,spit:0,thai:20); 
             spawnDelay = Random.Range(1.0f, 3.0f); 
         }
         else if (time >= 15f && time < 30f) 
         { 
-            SetEnemyTypeChance(20, 30, 20,0,kill:10,spit:10,thai:10); 
+            SetEnemyTypeChance(small:20, med:30, big:20,mom:0,kill:10,spit:10,thai:10); 
             spawnDelay = Random.Range(1.5f, 2.0f); 
         }
         else if (time >= 30f && time < 180f)
         {
-            SetEnemyTypeChance(10, 15, 30, 15,kill:10,spit:10,thai:10); 
+            SetEnemyTypeChance(small:10, med:15, big:30, mom:15,kill:10,spit:10,thai:10); 
             spawnDelay = 1.5f; 
         }
         else if (time >= 180f) 
@@ -200,8 +200,26 @@ public class WordSpawner : MonoBehaviour
     Vector3 GetRandomSpawnPosition()
     {
         if (playerTransform == null) return transform.position;
-        Vector2 randomDirection = Random.insideUnitCircle.normalized;
-        return playerTransform.position + (Vector3)(randomDirection * spawnRadius);
+
+        Vector3 finalPos = transform.position;
+        bool foundValidPos = false;
+        int attempts = 0; // ป้องกันการค้างถ้าหาที่ว่างไม่ได้เลย
+
+        while (!foundValidPos && attempts < 10)
+        {
+            Vector2 randomDirection = Random.insideUnitCircle.normalized;
+            finalPos = playerTransform.position + (Vector3)(randomDirection * spawnRadius);
+
+            // เช็คว่าในรัศมี 1 หน่วย มีมอนสเตอร์ตัวอื่นอยู่ไหม
+            Collider2D hit = Physics2D.OverlapCircle(finalPos, 1.5f); 
+            if (hit == null)
+            {
+                foundValidPos = true;
+            }
+            attempts++;
+        }
+
+        return finalPos;
     }
 
     void OnDrawGizmosSelected()

@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 250205185620926151}
   - component: {fileID: 6566396055282494309}
   - component: {fileID: -3955949306282747163}
+  - component: {fileID: -7221061958160998112}
   m_Layer: 0
   m_Name: Big
   m_TagString: Enemy
@@ -194,10 +195,27 @@ MonoBehaviour:
   moveSpeed: 0.2
   damage: 10
   stopDistance: 0.1
+  vomitPrefab: {fileID: 0}
+  shootInterval: 3
+  musicSource: {fileID: 0}
+  thaiSong: {fileID: 0}
+  colorRotationSpeed: 1
+  sensitivity: 50
   invisibleDuration: 1
   visibleDuration: 2
-  wordCanvas: {fileID: 0}
   fadeSpeed: 2
+--- !u!225 &-7221061958160998112
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 759368613755820644}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &4821357656030732831
 GameObject:
   m_ObjectHideFlags: 0
