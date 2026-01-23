@@ -83,22 +83,22 @@ public class WordSpawner : MonoBehaviour
     {
         if (time < 5f) 
         { 
-            SetEnemyTypeChance(0, 0, 0, 0,kill:0,spit:0,thai:100);
+            SetEnemyTypeChance(100, 0, 0, 0,kill:0,spit:0,thai:0);
             spawnDelay = Random.Range(1.0f, 4.0f); 
         }
         else if (time >= 5f && time < 15f) 
         { 
-            SetEnemyTypeChance(45, 35, 0,0,kill:20,spit:0,thai:0); 
+            SetEnemyTypeChance(45, 20, 0,0,kill:20,spit:0,thai:20); 
             spawnDelay = Random.Range(1.0f, 3.0f); 
         }
         else if (time >= 15f && time < 30f) 
         { 
-            SetEnemyTypeChance(40, 30, 20,0,kill:0,spit:10,thai:0); 
+            SetEnemyTypeChance(20, 30, 20,0,kill:10,spit:10,thai:10); 
             spawnDelay = Random.Range(1.5f, 2.0f); 
         }
         else if (time >= 30f && time < 180f)
         {
-            SetEnemyTypeChance(30, 30, 25, 15,kill:0,spit:0,thai:0); 
+            SetEnemyTypeChance(10, 15, 30, 15,kill:10,spit:10,thai:10); 
             spawnDelay = 1.5f; 
         }
         else if (time >= 180f) 
