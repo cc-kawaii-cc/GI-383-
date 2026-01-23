@@ -18,7 +18,9 @@ public class WordSpawner : MonoBehaviour
     public GameObject mediumEnemyPrefab;
     public GameObject bigEnemyPrefab;
     public GameObject ghostMomPrefab;
-    
+    public GameObject killMePrefab;
+    public GameObject spitterPrefab;
+    public GameObject thaiMusicGhostPrefab;
 
     [Header(" Word Banks (แยกความยาก)")] public List<string> easyWords = new List<string>()
         { "กา", "ไก่", "งู", "ปู", "มด" };
@@ -41,6 +43,9 @@ public class WordSpawner : MonoBehaviour
     private int chanceMedium = 0;
     private int chanceBig = 0;
     private int chanceGhostMom = 0;
+    private int chancekillme= 0;
+    private int chanceSpitter = 0;
+    private int chanceThai = 0;
     private Transform playerTransform;
 
     void Start()
@@ -76,31 +81,26 @@ public class WordSpawner : MonoBehaviour
 
     void UpdateGamePhase(float time)
     {
-        // 0 - 5 วินาที: Small 100% (Warm-up)
         if (time < 5f) 
         { 
-            SetEnemyTypeChance(100, 0, 0, 0); 
+            SetEnemyTypeChance(0, 0, 0, 0,kill:0,spit:0,thai:100);
             spawnDelay = Random.Range(1.0f, 4.0f); 
         }
-        // 5 - 15 วินาที: Small 70% / Medium 30% (เริ่มท้าทาย)
         else if (time >= 5f && time < 15f) 
         { 
-            SetEnemyTypeChance(70, 30, 0, 0); 
+            SetEnemyTypeChance(45, 35, 0,0,kill:20,spit:0,thai:0); 
             spawnDelay = Random.Range(1.0f, 3.0f); 
         }
-        // 15 - 30 วินาที: ครบทุกประเภท ยกเว้น Ghost Mom (ยากมาก)
         else if (time >= 15f && time < 30f) 
         { 
-            SetEnemyTypeChance(40, 40, 20, 0); 
+            SetEnemyTypeChance(40, 30, 20,0,kill:0,spit:10,thai:0); 
             spawnDelay = Random.Range(1.5f, 2.0f); 
         }
-        // 30 - 180 วินาที: เริ่มมี Ghost Mom ออกมาผสม
         else if (time >= 30f && time < 180f)
         {
-            SetEnemyTypeChance(30, 30, 25, 15); // Ghost Mom มีโอกาสเกิด 15%
+            SetEnemyTypeChance(30, 30, 25, 15,kill:0,spit:0,thai:0); 
             spawnDelay = 1.5f; 
         }
-        // 180 วินาที: บอสปรากฏตัว
         else if (time >= 180f) 
         { 
             SpawnBoss(); 
@@ -115,27 +115,13 @@ public class WordSpawner : MonoBehaviour
         int roll = Random.Range(0, 100); 
     
         // ตรรกะการสุ่มแบบเรียงลำดับ (Cumulative Probability)
-        if (roll < chanceSmall) 
-        { 
-            prefabToSpawn = smallEnemyPrefab; 
-            selectedWordBank = easyWords; 
-        }
-        else if (roll < chanceSmall + chanceMedium) 
-        { 
-            prefabToSpawn = mediumEnemyPrefab; 
-            selectedWordBank = mediumWords; 
-        }
-        else if (roll < chanceSmall + chanceMedium + chanceBig) 
-        { 
-            prefabToSpawn = bigEnemyPrefab; 
-            selectedWordBank = hardWords; 
-        }
-        else if (chanceGhostMom > 0) // ถ้าโอกาสเกิด Ghost Mom มากกว่า 0
-        { 
-            prefabToSpawn = ghostMomPrefab; 
-            selectedWordBank = mediumWords; 
-        }
-
+        if (roll < chanceSmall) { prefabToSpawn = smallEnemyPrefab; selectedWordBank = easyWords; }
+        else if (roll < (chanceSmall + chanceMedium)) { prefabToSpawn = mediumEnemyPrefab; selectedWordBank = mediumWords; }
+        else if (roll < (chanceSmall + chanceMedium + chanceBig)) { prefabToSpawn = bigEnemyPrefab; selectedWordBank = hardWords; }
+        else if (roll < (chanceSmall + chanceMedium + chanceBig + chanceGhostMom)) { prefabToSpawn = ghostMomPrefab; selectedWordBank = mediumWords; }
+        else if (roll < (chanceSmall + chanceMedium + chanceBig + chanceGhostMom + chancekillme)) { prefabToSpawn = killMePrefab; selectedWordBank = easyWords; }
+        else if (roll < (chanceSmall + chanceMedium + chanceBig + chanceGhostMom + chancekillme + chanceSpitter)) { prefabToSpawn = spitterPrefab; selectedWordBank = mediumWords; }
+        else { prefabToSpawn = thaiMusicGhostPrefab; selectedWordBank = mediumWords; }
         if (prefabToSpawn == null) return;
 
         Vector3 spawnPos = GetRandomSpawnPosition();
@@ -200,12 +186,15 @@ public class WordSpawner : MonoBehaviour
         foreach (var e in enemies) Destroy(e);
     }
 
-    public void SetEnemyTypeChance(int small, int med, int big, int mom) 
+    public void SetEnemyTypeChance(int small, int med, int big, int mom , int kill,int spit, int thai) 
     { 
         chanceSmall = small; 
         chanceMedium = med; 
         chanceBig = big; 
         chanceGhostMom = mom; 
+        chancekillme = kill;
+        chanceSpitter = spit;
+        chanceThai = thai;
     }
 
     Vector3 GetRandomSpawnPosition()

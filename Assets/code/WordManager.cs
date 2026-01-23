@@ -119,19 +119,16 @@ public class WordManager : MonoBehaviour
 
                     if (activeWord.GetEnemyTransform() != null)
                     {
-                        activeWord.GetEnemyTransform().GetComponent<WordDisplay>().DestroyEnemy();
+                        WordDisplay display = activeWord.GetEnemyTransform().GetComponentInChildren<WordDisplay>();
+                        if (display != null)
+                        {
+                            display.DestroyEnemy(); 
+                        }
                     }
                     if (deathVFXPrefab != null && activeWord.GetEnemyTransform() != null)
                     {
                         Instantiate(deathVFXPrefab, activeWord.GetEnemyTransform().position, Quaternion.identity);
                     }
-
-                    // ทำลายศัตรู
-                    if (activeWord.GetEnemyTransform() != null)
-                    {
-                        activeWord.GetEnemyTransform().GetComponent<WordDisplay>().DestroyEnemy();
-                    }
-
                     words.Remove(activeWord);
                     activeWord = null;
                 }

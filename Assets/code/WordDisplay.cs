@@ -39,8 +39,29 @@ public class WordDisplay : MonoBehaviour
         FlashColor(Color.green);
     }
 
-    public void DestroyEnemy() {
-        Destroy(gameObject);
+    public void DestroyEnemy() 
+    {
+        // 1. ตรวจสอบว่าเป็น KillMe หรือไม่ ก่อนจะถูกทำลาย
+        EnemyMovement moveScript = GetComponentInParent<EnemyMovement>();
+        if (moveScript != null && moveScript.type == EnemyMovement.EnemyType.KillMe)
+        {
+            WordSpawner spawner = FindObjectOfType<WordSpawner>();
+            if (spawner != null)
+            {
+                // ✅ สั่งให้เกิดตัวเล็กทันทีที่ตำแหน่งนี้
+                spawner.SpawnMinionAt(transform.position); 
+            }
+        }
+
+        // 2. ทำลายมอนสเตอร์ทั้งตัว (Parent ของ Canvas)
+        if (transform.parent != null)
+        {
+            Destroy(transform.parent.gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     public void FlashRed() {
@@ -62,15 +83,26 @@ public class WordDisplay : MonoBehaviour
     // ✅ เพิ่มฟังก์ชันนี้: เมื่อมอนสเตอร์ตัวนี้ถูกทำลาย (ตาย/ชนะ)
     private void OnDestroy()
     {
+        EnemyMovement moveScript = GetComponentInParent<EnemyMovement>();
+    
+        if (moveScript != null && moveScript.type == EnemyMovement.EnemyType.KillMe)
+        {
+            // เรียก WordSpawner ให้เกิดตัวง่าย 1 ตัวที่ตำแหน่งปัจจุบัน
+            WordSpawner spawner = FindObjectOfType<WordSpawner>();
+            if (spawner != null)
+            {
+                spawner.SpawnMinionAt(transform.position); // เรียกตัวเล็กออกมา
+            }
+        }
         // เช็คว่า TextDisplay ยังอยู่ไหม (กัน Error)
         if (textDisplay != null)
         {
             // เช็คว่า Text นี้เป็น "UI บนหน้าจอ" หรือไม่?
             // (ถ้า Text ไม่ได้เป็นลูกน้องของตัวมอนสเตอร์ แปลว่าเป็น UI ที่เราลากมาใส่)
-            if (textDisplay.transform.parent != transform)
+            if (textDisplay != null && textDisplay.transform.parent != transform)
             {
-                textDisplay.text = ""; // ลบข้อความทิ้ง
-                textDisplay.gameObject.SetActive(false); // ซ่อน Text ไปเลย
+                textDisplay.text = "";
+                textDisplay.gameObject.SetActive(false);
             }
         }
     }

@@ -1991,6 +1991,9 @@ MonoBehaviour:
   mediumEnemyPrefab: {fileID: 759368613755820644, guid: 619f10c973eeed14890c358808fbe3e2, type: 3}
   bigEnemyPrefab: {fileID: 759368613755820644, guid: be83c186eca6e514e884091e4597c95f, type: 3}
   ghostMomPrefab: {fileID: 759368613755820644, guid: b90ab53b5138dde4a8da5f3d442c27a9, type: 3}
+  killMePrefab: {fileID: 2335886934804346510, guid: 5541b3df472733e4fb3ccda946e12d6f, type: 3}
+  spitterPrefab: {fileID: 759368613755820644, guid: 5f10aa85edacd8745b456b3c8cd9b8cc, type: 3}
+  thaiMusicGhostPrefab: {fileID: 7692014657768215270, guid: 4e8bf37ac8318dd4fae96d4152afefd8, type: 3}
   easyWords:
   - crow
   - ghost
@@ -2027,7 +2030,7 @@ MonoBehaviour:
   wordManager: {fileID: 1088451949}
   spawnPoints: []
   spawnDelay: 5
-  spawnRadius: 13.3
+  spawnRadius: 13
 --- !u!114 &1088451949
 MonoBehaviour:
   m_ObjectHideFlags: 0
