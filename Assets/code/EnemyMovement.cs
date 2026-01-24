@@ -4,7 +4,8 @@ using UnityEngine.UI;
 
 public class EnemyMovement : MonoBehaviour
 {
-    public enum EnemyType { Easy, Medium, Hard, Boss, GhostMom, KillMe, Spitter, ThaiMusicGhost }
+    // เพิ่ม Type ใหม่: Splitter, Teleporter
+    public enum EnemyType { Easy, Medium, Hard, Boss, GhostMom, KillMe, Spitter, ThaiMusicGhost, Splitter, Teleporter }
 
     [Header("Enemy Settings")]
     public EnemyType type;
@@ -15,18 +16,25 @@ public class EnemyMovement : MonoBehaviour
     [Header("Spitter Settings")]
     public GameObject vomitPrefab;   
     public float shootInterval = 3f;
+    private Vector3 wanderTarget;
+    private float wanderTimer;
 
-    [Header("Thai Music Ghost (RGB Sync)")]
+    [Header("Thai Music Ghost (Buffer)")]
     public AudioSource musicSource; 
     public AudioClip thaiSong;
     public float colorRotationSpeed = 1f; 
     public float sensitivity = 50f;       
     private float hue = 0f;
+    public float buffRadius = 5f; 
+
+    [Header("Teleporter Settings")]
+    public float teleportInterval = 3f;
 
     [Header("Medium Type: Invisible Settings")]
     public float invisibleDuration = 1f;
     public float visibleDuration = 2f;
     public float fadeSpeed = 2f; 
+    
     private CanvasGroup wordCanvasGroup;
     private SpriteRenderer spriteRenderer;
 
@@ -39,7 +47,8 @@ public class EnemyMovement : MonoBehaviour
     [Header("Boss New Skills")]
     [Tooltip("ลากรูปผี (Sprite) มาใส่ช่องนี้")]
     public Sprite bossJumpscareSprite; 
-    public AudioClip screamSound;
+    [Tooltip("ลากไฟล์เสียงกรีดร้องมาใส่ช่องนี้")]
+    public AudioClip screamSound; // <--- เช็คช่องนี้ด้วยนะครับว่าใส่ไฟล์เสียงหรือยัง
     public float teleportRadius = 6f;
     
     private GameObject currentBlindInstance; 
@@ -54,43 +63,58 @@ public class EnemyMovement : MonoBehaviour
         if (type == EnemyType.Medium) StartCoroutine(InvisibilityRoutine());
         if (type == EnemyType.GhostMom) StartCoroutine(GhostMomRoutine());
         if (type == EnemyType.Spitter) StartCoroutine(SpitRoutine());
+        if (type == EnemyType.Teleporter) StartCoroutine(TeleportRoutine());
         
-        if (type == EnemyType.ThaiMusicGhost && musicSource != null && thaiSong != null)
+        if (type == EnemyType.ThaiMusicGhost)
         {
-            musicSource.clip = thaiSong;
-            musicSource.loop = true; 
-            musicSource.Play();
+            // ถ้าลืมใส่ AudioSource จะสร้างให้เอง
+            if (musicSource == null) musicSource = gameObject.AddComponent<AudioSource>();
+            
+            if (thaiSong != null)
+            {
+                musicSource.clip = thaiSong;
+                musicSource.loop = true; 
+                musicSource.spatialBlend = 0.8f; // เป็น 3D หน่อยๆ
+                musicSource.Play();
+            }
+            StartCoroutine(DancerBuffRoutine());
         }
 
         if (type == EnemyType.Boss) 
         {
-            // บังคับเทส 1 ครั้งตอนเริ่มเกม (ถ้าพอใจแล้วให้ลบบรรทัดนี้ทิ้ง)
-            StartCoroutine(BossCastDarkness()); 
-            
+            // StartCoroutine(BossCastDarkness()); // เทสเสร็จแล้วลบออกได้
             StartCoroutine(BossRoutine());
         }
     }
 
     void Update()
     {
-        if (player != null && !isWaiting)
+        if (player == null || isWaiting) return;
+
+        if (type == EnemyType.Boss)
         {
-            if (type == EnemyType.Boss)
+            Vector3 targetPos = player.position + (Vector3.up * bossHoverHeight);
+            transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
+        }
+        else if (type == EnemyType.Spitter)
+        {
+            HandleSpitterWander();
+        }
+        else 
+        {
+            float distance = Vector2.Distance(transform.position, player.position);
+            if (distance > stopDistance)
             {
-                Vector3 targetPos = player.position + (Vector3.up * bossHoverHeight);
-                transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
-            }
-            else if (type != EnemyType.Spitter) 
-            {
-                float distance = Vector2.Distance(transform.position, player.position);
-                if (distance > stopDistance)
-                {
-                    transform.position = Vector2.MoveTowards(transform.position, player.position, moveSpeed * Time.deltaTime);
-                }
+                transform.position = Vector2.MoveTowards(transform.position, player.position, moveSpeed * Time.deltaTime);
             }
         }
+
         if (type == EnemyType.ThaiMusicGhost && musicSource != null && musicSource.isPlaying) HandleRGBSync();
     }
+
+    // ---------------------------------------------------------
+    // Logic: Boss Skills
+    // ---------------------------------------------------------
 
     IEnumerator BossRoutine()
     {
@@ -111,70 +135,125 @@ public class EnemyMovement : MonoBehaviour
         }
     }
 
-    // --- Skill Jumpscare (แก้ใหม่: ตู้มเดียว ไม่กระพริบ) ---
     IEnumerator BossCastDarkness()
     {
-        Debug.Log("👻 Boss uses Jumpscare (One Shot)!");
+        Debug.Log("👻 Boss uses Jumpscare!");
 
+        // 1. จัดการเรื่องเสียง (แก้ใหม่: สร้างลำโพงให้เอง ถ้าไม่มี)
+        if (screamSound != null)
+        {
+            if (musicSource == null)
+            {
+                // พยายามหา AudioSource ในตัวก่อน
+                musicSource = GetComponent<AudioSource>();
+                
+                // ถ้ายังไม่มีอีก สร้างใหม่เลย!
+                if (musicSource == null) 
+                {
+                    musicSource = gameObject.AddComponent<AudioSource>();
+                    musicSource.spatialBlend = 0f; // ตั้งเป็น 2D (ดังเต็มหู ไม่สนระยะ)
+                }
+            }
+            
+            musicSource.PlayOneShot(screamSound);
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ ลืมใส่ไฟล์เสียงในช่อง Scream Sound ของบอสครับ!");
+        }
+
+        // 2. จัดการเรื่องภาพ (เหมือนเดิม)
         if (currentBlindInstance == null)
         {
             GameObject canvasObj = GameObject.Find("JumpscareCanvas_System");
             Canvas canvas;
-
             if (canvasObj == null)
             {
                 canvasObj = new GameObject("JumpscareCanvas_System");
                 canvas = canvasObj.AddComponent<Canvas>();
                 canvas.renderMode = RenderMode.ScreenSpaceOverlay; 
-                canvas.sortingOrder = 999; // ทับทุกอย่าง
+                canvas.sortingOrder = 999; 
                 canvasObj.AddComponent<CanvasScaler>();
                 canvasObj.AddComponent<GraphicRaycaster>();
             }
-            else
-            {
-                canvas = canvasObj.GetComponent<Canvas>();
-            }
+            else canvas = canvasObj.GetComponent<Canvas>();
 
             GameObject panelObj = new GameObject("JumpscareImage_Final");
             panelObj.transform.SetParent(canvasObj.transform, false);
-            
             Image img = panelObj.AddComponent<Image>();
             
-            if (bossJumpscareSprite != null)
-            {
+            if (bossJumpscareSprite != null) 
+            { 
                 img.sprite = bossJumpscareSprite; 
-                img.color = Color.white;
+                img.color = Color.white; 
                 img.preserveAspect = false; 
             }
-            else
-            {
-                img.color = Color.black; 
-            }
+            else { img.color = Color.black; }
 
             RectTransform rt = panelObj.GetComponent<RectTransform>();
-            rt.anchorMin = Vector2.zero; 
-            rt.anchorMax = Vector2.one;  
-            rt.sizeDelta = Vector2.zero; 
-            rt.anchoredPosition = Vector2.zero; 
-            
+            rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one; 
+            rt.sizeDelta = Vector2.zero; rt.anchoredPosition = Vector2.zero; 
             currentBlindInstance = panelObj;
         }
 
-        if (musicSource != null && screamSound != null) musicSource.PlayOneShot(screamSound);
-
-        // --- ส่วนที่แก้: โชว์ปุ๊บ ค้างเลย (ตัดส่วนกระพริบออก) ---
         if (currentBlindInstance != null)
         {
-            currentBlindInstance.SetActive(true); // 1. เปิดทันที ตู้ม!
-            
-            // 2. แช่ค้างไว้นิ่งๆ 2.5 วินาที
+            currentBlindInstance.SetActive(true);
             yield return new WaitForSeconds(2.5f);
-            
-            currentBlindInstance.SetActive(false); // 3. ปิด
+            currentBlindInstance.SetActive(false); 
         }
     }
 
-    // --- Skills อื่นๆ คงเดิม ---
+    // ---------------------------------------------------------
+    // Logic: New Monsters (ข้อ 2)
+    // ---------------------------------------------------------
+
+    void HandleSpitterWander()
+    {
+        wanderTimer -= Time.deltaTime;
+        if (wanderTimer <= 0)
+        {
+            wanderTarget = transform.position + (Vector3)(Random.insideUnitCircle * 3f);
+            wanderTimer = Random.Range(1f, 3f);
+        }
+        transform.position = Vector2.MoveTowards(transform.position, wanderTarget, (moveSpeed * 0.5f) * Time.deltaTime);
+    }
+
+    IEnumerator TeleportRoutine()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(teleportInterval);
+            if (player != null)
+            {
+                Vector2 randomPos = Random.insideUnitCircle.normalized * Random.Range(3f, 6f);
+                Vector3 targetPos = player.position + new Vector3(randomPos.x, randomPos.y, 0);
+                transform.position = targetPos;
+            }
+        }
+    }
+
+    IEnumerator DancerBuffRoutine()
+    {
+        while(true)
+        {
+            yield return new WaitForSeconds(1f);
+            Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, buffRadius);
+            foreach(var hit in hits)
+            {
+                EnemyMovement em = hit.GetComponent<EnemyMovement>();
+                if (em != null && em != this && em.type != EnemyType.Boss)
+                {
+                    if (em.moveSpeed < 3.0f) em.moveSpeed += 0.2f; 
+                }
+            }
+        }
+    }
+
+    // ---------------------------------------------------------
+    // Helper Functions
+    // ---------------------------------------------------------
+
     void SummonMinions()
     {
         WordSpawner spawner = FindObjectOfType<WordSpawner>();
@@ -199,11 +278,7 @@ public class EnemyMovement : MonoBehaviour
 
     IEnumerator BossRapidSpit()
     {
-        for(int i=0; i<3; i++)
-        {
-            ShootVomit();
-            yield return new WaitForSeconds(0.2f);
-        }
+        for(int i=0; i<3; i++) { ShootVomit(); yield return new WaitForSeconds(0.2f); }
     }
 
     void ShootVomit()

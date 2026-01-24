@@ -191,16 +191,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7ca6735105c42c438ad62e7316f9f15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 6
+  type: 8
   moveSpeed: 0.01
   damage: 10
   stopDistance: 0.1
   vomitPrefab: {fileID: 2298330681687117286, guid: 3639b742c7a9bbb4caf2da17f1a25ba5, type: 3}
   shootInterval: 3
+  musicSource: {fileID: 0}
+  thaiSong: {fileID: 0}
+  colorRotationSpeed: 1
+  sensitivity: 50
+  buffRadius: 5
+  teleportInterval: 3
   invisibleDuration: 1
   visibleDuration: 2
-  wordCanvas: {fileID: 0}
   fadeSpeed: 2
+  bossHoverHeight: 3.5
+  bossJumpscareSprite: {fileID: 0}
+  screamSound: {fileID: 0}
+  teleportRadius: 6
 --- !u!225 &-4754134383907001951
 CanvasGroup:
   m_ObjectHideFlags: 0
