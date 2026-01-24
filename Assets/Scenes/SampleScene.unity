@@ -2259,10 +2259,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4d5e46980bcdb943bb69984ecf8f077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  testBossMode: 1
+  testBossMode: 0
   bossPrefab: {fileID: 759368613755820644, guid: d7320122e926259459574e6dc8cca7e3, type: 3}
-  bossWord: "\u0E19\u0E30\u0E42\u0E21\u0E1E\u0E38\u0E17\u0E18\u0E32\u0E22\u0E30 \u0E2A\u0E31\u0E07\u0E04\u0E30\u0E42\u0E15
-    \u0E2D\u0E30\u0E23\u0E30\u0E2B\u0E31\u0E07 (\u0E1E\u0E34\u0E21\u0E1E\u0E4C\u0E22\u0E32\u0E27\u0E46\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E1B\u0E23\u0E32\u0E1A)"
+  bossWord: "\u0E44\u0E2D\u0E40\u0E1E\u0E35\u0E22\u0E27\u0E21\u0E36\u0E07\u0E1A\u0E34\u0E14\u0E2D\u0E35\u0E01\u0E40\u0E40\u0E25\u0E49\u0E27\u0E19\u0E30\u0E16\u0E32\u0E21\u0E40\u0E2D\u0E07\u0E14\u0E34\u0E1A\u0E14\u0E35\u0E27\u0E48\u0E32\u0E44\u0E1B\u0E2B\u0E21\u0E39\u0E17\u0E30\u0E15\u0E2D\u0E19\u0E44\u0E2B\u0E19\u0E41\u0E21\u0E48\u0E07\u0E40\u0E2D\u0E49\u0E22\u0E1A\u0E34\u0E14\u0E42\u0E14\u0E19\u0E15\u0E48\u0E2D\u0E22\u0E1A\u0E34\u0E14\u0E17\u0E33\u0E44\u0E21\u0E22\u0E31\u0E07\u0E1A\u0E34\u0E14\u0E2D\u0E35\u0E01\u0E1A\u0E34\u0E14\u0E40\u0E40\u0E07\u0E49\u0E19\u0E40\u0E40\u0E07\u0E49\u0E19"
   bossUIText: {fileID: 1408231849}
   smallEnemyPrefab: {fileID: 759368613755820644, guid: 905abc24488f3a54eb794749d0379292, type: 3}
   mediumEnemyPrefab: {fileID: 759368613755820644, guid: 619f10c973eeed14890c358808fbe3e2, type: 3}
@@ -2272,38 +2271,38 @@ MonoBehaviour:
   spitterPrefab: {fileID: 759368613755820644, guid: 5f10aa85edacd8745b456b3c8cd9b8cc, type: 3}
   thaiMusicGhostPrefab: {fileID: 7692014657768215270, guid: 4e8bf37ac8318dd4fae96d4152afefd8, type: 3}
   easyWords:
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - ant
+  - bird
+  - cat
+  - dog
+  - egg
+  - frog
+  - gift
+  - hand
+  - ice
+  - jell
+  - king
+  - life
+  - monk
   mediumWords:
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - aura
+  - banana
+  - concert
+  - distent
+  - elephent
+  - fireball
+  - iceace
+  - doctor
+  - monkey
   hardWords:
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - ironman
+  - batman
+  - starwar
+  - manager
+  - bigbang
+  - mouse
+  - keyboard
+  - computer
   wordManager: {fileID: 1088451949}
   spawnPoints: []
   spawnDelay: 5
