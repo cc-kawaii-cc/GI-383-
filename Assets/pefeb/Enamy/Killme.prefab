@@ -34,7 +34,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.0497, y: 0}
+  m_AnchoredPosition: {x: -0.049699783, y: 0}
   m_SizeDelta: {x: 0.7622, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3946727878063575697
@@ -110,7 +110,7 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 1
+  m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
@@ -333,10 +333,21 @@ MonoBehaviour:
   moveSpeed: 0.6
   damage: 10
   stopDistance: 0.1
+  vomitPrefab: {fileID: 0}
+  shootInterval: 3
+  musicSource: {fileID: 0}
+  thaiSong: {fileID: 0}
+  colorRotationSpeed: 1
+  sensitivity: 50
+  buffRadius: 5
+  teleportInterval: 3
   invisibleDuration: 1
   visibleDuration: 2
-  wordCanvas: {fileID: 0}
   fadeSpeed: 2
+  bossHoverHeight: 3.5
+  bossJumpscareSprite: {fileID: 0}
+  screamSound: {fileID: 0}
+  teleportRadius: 6
 --- !u!225 &1991789105875344372
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -386,8 +397,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.0031, y: 1.46}
-  m_SizeDelta: {x: 4.4522, y: 1}
+  m_AnchoredPosition: {x: 0, y: 1}
+  m_SizeDelta: {x: 10, y: 2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &3276751533388361892
 Canvas:
