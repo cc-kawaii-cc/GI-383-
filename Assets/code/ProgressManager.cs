@@ -3,8 +3,8 @@ using TMPro;
 
 public class ProgressManager : MonoBehaviour
 {
-    public TextMeshProUGUI progressText; // ลาก Text UI มาใส่ที่นี่
-    public int totalSpecialWordsInLevel = 10; // กำหนดว่าด่านนี้มีคำพิเศษกี่คำ
+    public TextMeshProUGUI progressText;
+    public int totalSpecialWordsInLevel = 10; 
     private int currentSpecialCount = 0;
 
     void Start()
@@ -20,13 +20,29 @@ public class ProgressManager : MonoBehaviour
 
     void UpdateProgressUI()
     {
-        // คำนวณเป็น %
+        // คำนวณ %
         float percent = ((float)currentSpecialCount / totalSpecialWordsInLevel) * 100f;
-        progressText.text = "Progress: " + percent.ToString("F0") + "%";
+        
+        // อัปเดต UI
+        if(progressText != null) 
+            progressText.text = "Story Found: " + percent.ToString("F0") + "%";
+
+        // --- ส่วนที่เพิ่ม: บันทึกข้อมูลลงเครื่อง (Save System) ---
+        // 1. โหลดค่าเก่ามาก่อน (ถ้าไม่มีให้เป็น 0)
+        int currentSavedHighscore = PlayerPrefs.GetInt("StoryProgress", 0);
+        
+        // 2. ถ้า % ที่เล่นได้รอบนี้ "มากกว่า" ของเดิม ให้บันทึกทับ
+        if ((int)percent > currentSavedHighscore)
+        {
+            PlayerPrefs.SetInt("StoryProgress", (int)percent);
+            PlayerPrefs.Save(); // สั่งบันทึกทันที
+            Debug.Log("Progress Saved: " + percent + "%");
+        }
+        // ---------------------------------------------------
 
         if (percent >= 100f)
         {
-            Debug.Log("Mission Complete!"); // ใส่ Logic เมื่อครบ 100% ตรงนี้
+            Debug.Log("Mission Complete! All Story Unlocked.");
         }
     }
 }

@@ -4,12 +4,12 @@ using TMPro;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager instance; // Singleton ให้เรียกใช้ง่ายๆ
+    public static GameManager instance; 
 
     [Header("UI Panels")]
-    public GameObject gameOverPanel; // ลาก Panel "Game Over" มาใส่
-    public GameObject victoryPanel;  // ลาก Panel "Victory" มาใส่
-    public TextMeshProUGUI scoreText; // (Optional) เอาไว้โชว์คะแนนตอนจบ
+    public GameObject gameOverPanel; 
+    public GameObject victoryPanel;  
+    public TextMeshProUGUI scoreText; 
 
     [Header("Game State")]
     public bool isGameEnded = false;
@@ -26,11 +26,7 @@ public class GameManager : MonoBehaviour
         isGameEnded = true;
 
         Debug.Log("YOU DIED!");
-        
-        // เปิดหน้าจอ Game Over
         if (gameOverPanel != null) gameOverPanel.SetActive(true);
-        
-        // หยุดเกม
         Time.timeScale = 0f; 
     }
 
@@ -40,25 +36,26 @@ public class GameManager : MonoBehaviour
         isGameEnded = true;
 
         Debug.Log("MISSION COMPLETE!");
-
-        // เปิดหน้าจอ Victory
         if (victoryPanel != null) victoryPanel.SetActive(true);
-
-        // หยุดเกม
         Time.timeScale = 0f;
     }
 
-    // ฟังก์ชันสำหรับปุ่ม Restart (ผูกกับปุ่มใน Unity)
     public void RestartGame()
     {
-        Time.timeScale = 1f; // คืนค่าเวลาให้เดินปกติ
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name); // โหลดฉากเดิมซ้ำ
+        Time.timeScale = 1f; 
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name); 
     }
 
-    // ฟังก์ชันสำหรับปุ่ม Quit (ผูกกับปุ่มใน Unity)
     public void QuitGame()
     {
         Debug.Log("Quitting Game...");
         Application.Quit();
+    }
+
+    // --- เพิ่มฟังก์ชันนี้สำหรับปุ่ม "Main Menu" ---
+    public void LoadMainMenu()
+    {
+        Time.timeScale = 1f; // คืนค่าเวลาก่อนเปลี่ยนฉาก
+        SceneManager.LoadScene("MainMenu"); // ต้องตั้งชื่อ Scene เมนูว่า "MainMenu"
     }
 }
