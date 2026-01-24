@@ -205,6 +205,9 @@ MonoBehaviour:
   visibleDuration: 2
   fadeSpeed: 2
   bossHoverHeight: 5
+  bossJumpscareSprite: {fileID: -6093491187924526687, guid: 6427d98fe99cbd4478f8468c91681c9a, type: 3}
+  screamSound: {fileID: 0}
+  teleportRadius: 6
 --- !u!225 &-2657003434185314416
 CanvasGroup:
   m_ObjectHideFlags: 0

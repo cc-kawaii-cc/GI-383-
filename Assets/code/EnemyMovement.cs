@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class EnemyMovement : MonoBehaviour
 {
@@ -11,18 +12,16 @@ public class EnemyMovement : MonoBehaviour
     public float damage = 10f;
     public float stopDistance = 0.1f;
 
-    // ✅ แก้ Error: Cannot resolve symbol 'vomitPrefab' และ 'shootInterval'
     [Header("Spitter Settings")]
     public GameObject vomitPrefab;   
     public float shootInterval = 3f;
 
-    // ✅ แก้ Error: Cannot resolve symbol 'hue', 'colorRotationSpeed', 'sensitivity'
     [Header("Thai Music Ghost (RGB Sync)")]
     public AudioSource musicSource; 
     public AudioClip thaiSong;
     public float colorRotationSpeed = 1f; 
     public float sensitivity = 50f;       
-    private float hue = 0f; // ตัวแปรเก็บค่าสีรุ้ง
+    private float hue = 0f;
 
     [Header("Medium Type: Invisible Settings")]
     public float invisibleDuration = 1f;
@@ -37,6 +36,14 @@ public class EnemyMovement : MonoBehaviour
     [Header("Boss Movement")]
     public float bossHoverHeight = 3.5f;
 
+    [Header("Boss New Skills")]
+    [Tooltip("ลากรูปผี (Sprite) มาใส่ช่องนี้")]
+    public Sprite bossJumpscareSprite; 
+    public AudioClip screamSound;
+    public float teleportRadius = 6f;
+    
+    private GameObject currentBlindInstance; 
+
     void Start()
     {
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
@@ -44,87 +51,37 @@ public class EnemyMovement : MonoBehaviour
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null) player = playerObj.transform;
 
-        // เริ่มระบบตามประเภท
         if (type == EnemyType.Medium) StartCoroutine(InvisibilityRoutine());
         if (type == EnemyType.GhostMom) StartCoroutine(GhostMomRoutine());
         if (type == EnemyType.Spitter) StartCoroutine(SpitRoutine());
-        if (type == EnemyType.Boss) StartCoroutine(BossRoutine());
-        if (type == EnemyType.ThaiMusicGhost)
-        {
-            if (musicSource != null && thaiSong != null)
-            {
-                musicSource.clip = thaiSong;
-                musicSource.loop = true; 
-                musicSource.Play();
-            }
-        }
-    }
-    IEnumerator BossRoutine()
-    {
-        // 1. บอสจะเดินมาหยุดที่ระยะปลอดภัย (ตามที่ตั้งไว้ใน bossHoverHeight)
-        stopDistance = 5.0f; 
         
-        while (true)
+        if (type == EnemyType.ThaiMusicGhost && musicSource != null && thaiSong != null)
         {
-            yield return new WaitForSeconds(4f); // รอ 4 วินาที (Cooldown สกิล)
+            musicSource.clip = thaiSong;
+            musicSource.loop = true; 
+            musicSource.Play();
+        }
 
-            // สุ่มสกิล: 0 = เสกลูกน้อง, 1 = ยิงอ้วกใส่
-            int skill = Random.Range(0, 2);
-
-            if (skill == 0)
-            {
-                // --- [แก้ใหม่] Skill: เรียกสมุนที่เส้น Spawn Radius ---
-                WordSpawner spawner = FindObjectOfType<WordSpawner>();
-                if (spawner != null && player != null)
-                {
-                    Debug.Log("Boss: Summon Minions at Spawn Radius!");
-                    
-                    // ✅ ดึงค่า spawnRadius มาจาก Spawner โดยตรง (ค่าเส้นวงกลมเหลือง)
-                    float radius = spawner.spawnRadius; 
-                    
-                    int minionCount = 3; // จำนวนลูกน้องที่จะเสก
-
-                    for (int i = 0; i < minionCount; i++)
-                    {
-                        // คำนวณมุมให้กระจายเป็นวงกลม 360 องศา
-                        float angle = i * (360f / minionCount);
-                        
-                        // แปลงมุมเป็นทิศทาง
-                        Vector3 dir = Quaternion.Euler(0, 0, angle) * Vector3.up;
-                        
-                        // ✅ คำนวณจุดเกิด: ผู้เล่น + (ทิศทาง * รัศมีวงกลม)
-                        Vector3 spawnPos = player.position + (dir * radius);
-                        
-                        // สั่งเสกตรงจุดนั้น
-                        spawner.SpawnMinionAt(spawnPos);
-                    }
-                }
-            }
-            else
-            {
-                // Skill: ยิงโจมตี (เหมือน Spitter)
-                Debug.Log("Boss: Attack!");
-                ShootVomit(); 
-            }
+        if (type == EnemyType.Boss) 
+        {
+            // บังคับเทส 1 ครั้งตอนเริ่มเกม (ถ้าพอใจแล้วให้ลบบรรทัดนี้ทิ้ง)
+            StartCoroutine(BossCastDarkness()); 
+            
+            StartCoroutine(BossRoutine());
         }
     }
+
     void Update()
     {
-        // ระบบเดิน
         if (player != null && !isWaiting)
         {
             if (type == EnemyType.Boss)
             {
-                // --- (ของใหม่) บอส: ล็อกเป้าไปที่ "จุดเหนือหัวผู้เล่น" ---
-                // เอาตำแหน่งผู้เล่น + ความสูง (Vector3.up)
                 Vector3 targetPos = player.position + (Vector3.up * bossHoverHeight);
-                
-                // สั่งให้เดินไปที่จุดนั้น
                 transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
             }
             else if (type != EnemyType.Spitter) 
             {
-                // (ของเก่า) มอนทั่วไป: เดินเข้าหาตัวผู้เล่นตรงๆ และหยุดเมื่อถึงระยะ
                 float distance = Vector2.Distance(transform.position, player.position);
                 if (distance > stopDistance)
                 {
@@ -132,11 +89,130 @@ public class EnemyMovement : MonoBehaviour
                 }
             }
         }
+        if (type == EnemyType.ThaiMusicGhost && musicSource != null && musicSource.isPlaying) HandleRGBSync();
+    }
 
-        // ... (ส่วน RGB Sync ของผีนางรำ ปล่อยไว้เหมือนเดิม) ...
-        if (type == EnemyType.ThaiMusicGhost && musicSource != null && musicSource.isPlaying)
+    IEnumerator BossRoutine()
+    {
+        stopDistance = 5.0f;
+        while (true)
         {
-            HandleRGBSync();
+            yield return new WaitForSeconds(Random.Range(4f, 6f));
+            int skill = Random.Range(0, 5); 
+            
+            switch (skill)
+            {
+                case 0: SummonMinions(); break;
+                case 1: ShootVomit(); break;
+                case 2: BossTeleport(); break;
+                case 3: StartCoroutine(BossCastDarkness()); break;
+                case 4: StartCoroutine(BossRapidSpit()); break;
+            }
+        }
+    }
+
+    // --- Skill Jumpscare (แก้ใหม่: ตู้มเดียว ไม่กระพริบ) ---
+    IEnumerator BossCastDarkness()
+    {
+        Debug.Log("👻 Boss uses Jumpscare (One Shot)!");
+
+        if (currentBlindInstance == null)
+        {
+            GameObject canvasObj = GameObject.Find("JumpscareCanvas_System");
+            Canvas canvas;
+
+            if (canvasObj == null)
+            {
+                canvasObj = new GameObject("JumpscareCanvas_System");
+                canvas = canvasObj.AddComponent<Canvas>();
+                canvas.renderMode = RenderMode.ScreenSpaceOverlay; 
+                canvas.sortingOrder = 999; // ทับทุกอย่าง
+                canvasObj.AddComponent<CanvasScaler>();
+                canvasObj.AddComponent<GraphicRaycaster>();
+            }
+            else
+            {
+                canvas = canvasObj.GetComponent<Canvas>();
+            }
+
+            GameObject panelObj = new GameObject("JumpscareImage_Final");
+            panelObj.transform.SetParent(canvasObj.transform, false);
+            
+            Image img = panelObj.AddComponent<Image>();
+            
+            if (bossJumpscareSprite != null)
+            {
+                img.sprite = bossJumpscareSprite; 
+                img.color = Color.white;
+                img.preserveAspect = false; 
+            }
+            else
+            {
+                img.color = Color.black; 
+            }
+
+            RectTransform rt = panelObj.GetComponent<RectTransform>();
+            rt.anchorMin = Vector2.zero; 
+            rt.anchorMax = Vector2.one;  
+            rt.sizeDelta = Vector2.zero; 
+            rt.anchoredPosition = Vector2.zero; 
+            
+            currentBlindInstance = panelObj;
+        }
+
+        if (musicSource != null && screamSound != null) musicSource.PlayOneShot(screamSound);
+
+        // --- ส่วนที่แก้: โชว์ปุ๊บ ค้างเลย (ตัดส่วนกระพริบออก) ---
+        if (currentBlindInstance != null)
+        {
+            currentBlindInstance.SetActive(true); // 1. เปิดทันที ตู้ม!
+            
+            // 2. แช่ค้างไว้นิ่งๆ 2.5 วินาที
+            yield return new WaitForSeconds(2.5f);
+            
+            currentBlindInstance.SetActive(false); // 3. ปิด
+        }
+    }
+
+    // --- Skills อื่นๆ คงเดิม ---
+    void SummonMinions()
+    {
+        WordSpawner spawner = FindObjectOfType<WordSpawner>();
+        if (spawner != null && player != null)
+        {
+            float radius = spawner.spawnRadius; 
+            for (int i = 0; i < 3; i++)
+            {
+                float angle = i * 120f;
+                Vector3 dir = Quaternion.Euler(0, 0, angle) * Vector3.up;
+                spawner.SpawnMinionAt(player.position + (dir * radius));
+            }
+        }
+    }
+
+    void BossTeleport()
+    {
+        if (player == null) return;
+        Vector2 randomPos = Random.insideUnitCircle.normalized * teleportRadius;
+        transform.position = player.position + new Vector3(randomPos.x, randomPos.y, 0);
+    }
+
+    IEnumerator BossRapidSpit()
+    {
+        for(int i=0; i<3; i++)
+        {
+            ShootVomit();
+            yield return new WaitForSeconds(0.2f);
+        }
+    }
+
+    void ShootVomit()
+    {
+        if (vomitPrefab != null)
+        {
+            GameObject p = Instantiate(vomitPrefab, transform.position, Quaternion.identity);
+            VomitProjectile v = p.GetComponent<VomitProjectile>();
+            if (v != null && player != null) v.Setup(player);
         }
     }
 
@@ -147,75 +223,44 @@ public class EnemyMovement : MonoBehaviour
         float sum = 0;
         foreach (float s in samples) sum += s * s;
         float rms = Mathf.Sqrt(sum / 256);
-
         hue += Time.deltaTime * colorRotationSpeed;
         if (hue > 1) hue -= 1;
-
         if (spriteRenderer != null)
         {
             float brightness = 0.5f + (rms * sensitivity); 
             spriteRenderer.color = Color.HSVToRGB(hue, 1f, Mathf.Clamp(brightness, 0.5f, 1f));
         }
     }
-
-    // --- Coroutines สำหรับความสามารถพิเศษ ---
+    
     IEnumerator SpitRoutine()
     {
-        while (true)
-        {
-            yield return new WaitForSeconds(shootInterval);
-            if (player != null) ShootVomit();
-        }
+        while (true) { yield return new WaitForSeconds(shootInterval); if (player != null) ShootVomit(); }
     }
-
-    void ShootVomit()
-    {
-        if (vomitPrefab != null)
-        {
-            GameObject projectile = Instantiate(vomitPrefab, transform.position, Quaternion.identity);
-            VomitProjectile v = projectile.GetComponent<VomitProjectile>();
-            if (v != null) v.Setup(player);
-        }
-    }
-
     IEnumerator GhostMomRoutine()
     {
         isWaiting = true;
         yield return new WaitForSeconds(Random.Range(3f, 5f));
-        WordSpawner spawner = FindObjectOfType<WordSpawner>();
-        if (spawner != null)
-        {
-            spawner.SpawnMinionAt(transform.position);
-            spawner.SpawnMinionAt(transform.position);
-        }
+        WordSpawner s = FindObjectOfType<WordSpawner>();
+        if (s != null) { s.SpawnMinionAt(transform.position); s.SpawnMinionAt(transform.position); }
         isWaiting = false;
     }
-
     IEnumerator InvisibilityRoutine()
     {
         while (true)
         {
-            yield return StartCoroutine(Fade(1f, 0f)); 
-            yield return new WaitForSeconds(invisibleDuration);
-            yield return StartCoroutine(Fade(0f, 1f)); 
-            yield return new WaitForSeconds(visibleDuration);
+            yield return StartCoroutine(Fade(1f, 0f)); yield return new WaitForSeconds(invisibleDuration);
+            yield return StartCoroutine(Fade(0f, 1f)); yield return new WaitForSeconds(visibleDuration);
         }
     }
-
-    IEnumerator Fade(float startAlpha, float endAlpha)
+    IEnumerator Fade(float start, float end)
     {
-        float elapsedTime = 0f;
-        while (elapsedTime < 1f)
+        float t = 0f;
+        while (t < 1f)
         {
-            elapsedTime += Time.deltaTime * fadeSpeed;
-            float currentAlpha = Mathf.Lerp(startAlpha, endAlpha, elapsedTime);
-            if (spriteRenderer != null)
-            {
-                Color c = spriteRenderer.color;
-                c.a = currentAlpha;
-                spriteRenderer.color = c;
-            }
-            if (wordCanvasGroup != null) wordCanvasGroup.alpha = currentAlpha;
+            t += Time.deltaTime * fadeSpeed;
+            float a = Mathf.Lerp(start, end, t);
+            if (spriteRenderer != null) { Color c = spriteRenderer.color; c.a = a; spriteRenderer.color = c; }
+            if (wordCanvasGroup != null) wordCanvasGroup.alpha = a;
             yield return null;
         }
     }
