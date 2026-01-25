@@ -104,13 +104,13 @@ public class WordSpawner : MonoBehaviour
         if (time < 10f) 
         { 
             // 0-10 วิ: อุ่นเครื่อง (เริ่มมี Medium นิดหน่อย)
-            SetEnemyTypeChance(small:80, med:20, big:0, mom:0, kill:0, spit:0, thai:0);
+            SetEnemyTypeChance(small:80, med:10, big:10, mom:0, kill:0, spit:0, thai:0);
             spawnDelay = Random.Range(2.0f, 3.0f); 
         }
         else if (time >= 10f && time < 30f) 
         { 
             // 10-30 วิ: เริ่มปล่อยของ (Medium เยอะขึ้น, เริ่มมี Big/Hard)
-            SetEnemyTypeChance(small:40, med:30, big:10, mom:0, kill:10, spit:5, thai:5); 
+            SetEnemyTypeChance(small:30, med:30, big:10, mom:10, kill:10, spit:5, thai:5); 
             spawnDelay = Random.Range(1.5f, 2.5f); 
         }
         else if (time >= 30f && time < 60f) 
