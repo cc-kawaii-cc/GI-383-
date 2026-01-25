@@ -104,7 +104,10 @@ public class WordManager : MonoBehaviour
                         // ------------------------------------------------
 
                         WordDisplay display = activeWord.GetEnemyTransform().GetComponentInChildren<WordDisplay>();
-                        if (display != null) display.DestroyEnemy(); 
+                        if (display != null)
+                        {
+                            display.DestroyEnemy(); // ตัวนี้จะไปรัน Logic เกิดตัวเล็กให้เอง
+                        }
                     }
                     
                     if (deathVFXPrefab != null && activeWord.GetEnemyTransform() != null)

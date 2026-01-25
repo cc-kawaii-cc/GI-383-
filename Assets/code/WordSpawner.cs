@@ -35,7 +35,15 @@ public class WordSpawner : MonoBehaviour
     [Header("Spawn Settings")] 
     public float spawnDelay = 2f;
     [Range(5f, 20f)] public float spawnRadius = 12f;
+    
+    [Header("Square Spawn Settings")]
+    public float spawnWidth = 20f;  // ความกว้างของพื้นที่เกิด (แกน X)
+    public float spawnHeight = 10f; // ความสูงของพื้นที่เกิด (แกน Y)
+    
+    [Header("Limit Settings")]
+    public int maxEnemies = 15; // กำหนดจำนวนมอนสเตอร์สูงสุดในแมพ
 
+    
     // Internal Variables
     private float nextSpawnTime = 0f;
     private bool isBossActive = false;
@@ -71,21 +79,24 @@ public class WordSpawner : MonoBehaviour
 
     void Update()
     {
-        // ถ้าบอสเกิดแล้ว หรืออยู่ในโหมดเทสบอส ไม่ต้องรัน Logic ปกติ
         if (isBossActive || testBossMode) return;
-
-        // --- เพิ่ม Logic: ช่วงรอเคลียร์จอก่อนบอสมา ---
         if (isWaitingForClear)
         {
-            // เช็คว่าผีหมดฉากหรือยัง (Count == 0)
             if (wordManager.words.Count == 0)
             {
-                SpawnBoss(); // ถ้าหมดแล้ว เรียกบอสออกมาเลย
-                isWaitingForClear = false; // จบสถานะรอ
+                SpawnBoss();
+                isWaitingForClear = false;
             }
-            return; // หยุดการ Spawn ตัวใหม่ในช่วงนี้
+            return;
         }
-        // ------------------------------------------
+
+        // ✅ เพิ่มการเช็ค: ถ้ามอนสเตอร์ในแมพถึงขีดจำกัด ให้หยุดเกิดชั่วคราว
+        if (wordManager.words.Count >= maxEnemies) 
+        {
+            // อัปเดต nextSpawnTime ไว้เรื่อยๆ เพื่อไม่ให้มันเกิดทันทีที่มอนสเตอร์ลดลง (ป้องกันการ Overload)
+            nextSpawnTime = Time.time + spawnDelay;
+            return; 
+        }
 
         float timeAlive = Time.time - timeSinceStart;
         UpdateGamePhase(timeAlive);

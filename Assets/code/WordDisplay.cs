@@ -18,12 +18,12 @@ public class WordDisplay : MonoBehaviour
         if (textDisplay != null && textDisplay.text.Length > 0)
         {
             textDisplay.text = textDisplay.text.Remove(0, 1); // ลบตัวอักษรตัวแรกออก
-            
+
             // ✅ เปลี่ยนเป็นสีเขียวเมื่อพิมพ์ถูก
             textDisplay.color = Color.green;
-            
+
             // สั่งให้รีเซ็ตกลับเป็นสีเดิมหลังจากแป๊บนึง
-            StopAllCoroutines(); 
+            StopAllCoroutines();
             StartCoroutine(ResetColorDelay());
         }
     }
@@ -32,7 +32,7 @@ public class WordDisplay : MonoBehaviour
     {
         Destroy(gameObject);
     }
-    
+
     // ฟังก์ชันแจ้งเตือนพิมพ์ผิด (จอแดง/ตัวแดง)
     public void FlashRed()
     {
@@ -40,8 +40,8 @@ public class WordDisplay : MonoBehaviour
         {
             // ถ้าเป็นบอส (ที่ตัวหนังสือแดงอยู่แล้ว) อาจจะให้กระพริบเป็นขาว หรือแดงเข้ม ก็ได้
             // แต่ในที่นี้สั่งเป็นแดงตามปกติ
-            textDisplay.color = Color.red; 
-            
+            textDisplay.color = Color.red;
+
             StopAllCoroutines();
             StartCoroutine(ResetColorDelay());
         }
@@ -51,15 +51,15 @@ public class WordDisplay : MonoBehaviour
     IEnumerator ResetColorDelay()
     {
         yield return new WaitForSeconds(0.1f); // รอ 0.1 วินาที
-        
-        if (textDisplay != null) 
+
+        if (textDisplay != null)
         {
             // เช็คว่าถ้าเป็น UI บอส (ที่ตั้ง Tag ไว้) ให้กลับเป็นสีแดงเหมือนเดิม
-            if (gameObject.CompareTag("BossUI")) 
+            if (gameObject.CompareTag("BossUI"))
             {
-                textDisplay.color = Color.red; 
+                textDisplay.color = Color.red;
             }
-            else 
+            else
             {
                 textDisplay.color = Color.white; // ตัวธรรมดาให้กลับเป็นสีขาว
             }
@@ -71,15 +71,45 @@ public class WordDisplay : MonoBehaviour
     {
         SetWord(word.text);
     }
-    
+
     public void DestroyEnemy()
     {
-        // ถ้าเป็น UI ของบอส ให้ซ่อนแทนการทำลาย
-        if (textDisplay != null && textDisplay.gameObject.CompareTag("BossUI"))
+        // --- 1. ส่วนเดิม: เช็ค Boss และ Progress (ห้ามลบ) ---
+        EnemyMovement moveScript = GetComponentInParent<EnemyMovement>();
+
+        if (moveScript != null)
+        {
+            // เช็ค Boss
+            if (moveScript.type == EnemyMovement.EnemyType.Boss)
+            {
+                if (GameManager.instance != null) GameManager.instance.Victory();
+            }
+
+            // ✅ เพิ่มส่วนนี้: ถ้าเป็น KillMe ให้เรียกตัวเล็ก
+            if (moveScript.type == EnemyMovement.EnemyType.KillMe)
+            {
+                WordSpawner spawner = FindObjectOfType<WordSpawner>();
+                if (spawner != null)
+                {
+                    spawner.SpawnMinionAt(transform.position);
+                }
+            }
+        }
+
+        // --- 2. ส่วนเดิม: เคลียร์ UI และทำลาย Object ---
+        if (textDisplay != null && textDisplay.transform.parent != transform)
         {
             textDisplay.text = "";
             textDisplay.gameObject.SetActive(false);
         }
-        Destroy(gameObject);
+
+        if (transform.parent != null)
+        {
+            Destroy(transform.parent.gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 }

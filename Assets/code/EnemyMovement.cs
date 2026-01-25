@@ -64,7 +64,6 @@ public class EnemyMovement : MonoBehaviour
         if (type == EnemyType.GhostMom) StartCoroutine(GhostMomRoutine());
         if (type == EnemyType.Spitter) StartCoroutine(SpitRoutine());
         if (type == EnemyType.Teleporter) StartCoroutine(TeleportRoutine());
-        
         if (type == EnemyType.ThaiMusicGhost)
         {
             // ถ้าลืมใส่ AudioSource จะสร้างให้เอง
@@ -78,6 +77,10 @@ public class EnemyMovement : MonoBehaviour
                 musicSource.Play();
             }
             StartCoroutine(DancerBuffRoutine());
+        }
+        if (type == EnemyType.Spitter)
+        {
+            StartCoroutine(SpitRoutine());
         }
 
         if (type == EnemyType.Boss) 
@@ -249,10 +252,7 @@ public class EnemyMovement : MonoBehaviour
             }
         }
     }
-
-    // ---------------------------------------------------------
-    // Helper Functions
-    // ---------------------------------------------------------
+    
 
     void SummonMinions()
     {
@@ -307,9 +307,19 @@ public class EnemyMovement : MonoBehaviour
         }
     }
     
+    
     IEnumerator SpitRoutine()
     {
-        while (true) { yield return new WaitForSeconds(shootInterval); if (player != null) ShootVomit(); }
+        while (true)
+        {
+            yield return new WaitForSeconds(shootInterval);
+        
+            // เช็คระยะก่อนยิง (ถ้าอยากให้ยิงเฉพาะตอนเห็นผู้เล่น)
+            if (player != null)
+            {
+                ShootVomit();
+            }
+        }
     }
     IEnumerator GhostMomRoutine()
     {

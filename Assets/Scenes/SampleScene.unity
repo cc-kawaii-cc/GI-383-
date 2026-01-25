@@ -1405,7 +1405,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 15
+  orthographic size: 17
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -2306,7 +2306,10 @@ MonoBehaviour:
   wordManager: {fileID: 1088451949}
   spawnPoints: []
   spawnDelay: 5
-  spawnRadius: 20
+  spawnRadius: 15.03
+  spawnWidth: 20
+  spawnHeight: 10
+  maxEnemies: 15
 --- !u!114 &1088451949
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3312,7 +3315,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -250, y: -150}
+  m_AnchoredPosition: {x: -438, y: -274}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1580455913
