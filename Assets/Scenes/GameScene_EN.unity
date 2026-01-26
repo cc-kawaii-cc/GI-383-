@@ -2309,8 +2309,8 @@ MonoBehaviour:
   spawnRadius: 20
   spawnWidth: 20
   spawnHeight: 10
-  maxEnemies: 15
-  spawnMargin: 0
+  maxEnemies: 8
+  spawnMargin: -2
 --- !u!114 &1088451949
 MonoBehaviour:
   m_ObjectHideFlags: 0
