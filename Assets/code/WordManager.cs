@@ -11,6 +11,22 @@ public class WordManager : MonoBehaviour
 
     private Word activeWord;
 
+    [Header("Boss Jumpscare Settings")]
+    [Tooltip("จำนวนครั้งที่พิมพ์ผิดได้ฟรีๆ โดยไม่คิดเปอร์เซ็นต์ (กันคนมือลั่น)")]
+    public int safeMistakes = 3; //  แนะนำตั้งไว้ 5-10 
+    
+    [Range(0, 100)] public float startChance = 0f;  
+    [Range(0, 100)] public float chanceStep = 5f;   //  ปรับลดลงเหลือ 5% พอผิดครบโควต้าค่อยๆ ขึ้นทีละนิด
+    
+    private float currentJumpscareChance;
+    private int currentMistakeCount = 0; //  ตัวนับจำนวนครั้งที่ผิด
+
+    void Start()
+    {
+        currentJumpscareChance = startChance;
+        currentMistakeCount = 0;
+    }
+
     void Update()
     {
         CleanUpDeadWords();
@@ -26,29 +42,63 @@ public class WordManager : MonoBehaviour
             {
                 if (activeWord.GetNextLetter() == letter)
                 {
+                    // --- พิมพ์ถูก ---
                     activeWord.TypeLetter();
                     Shoot();
+                    
+                    // (ทางเลือก) ถ้าอยากให้พิมพ์ถูกแล้วลดความเสี่ยง ให้เปิดบรรทัดล่างนี้ครับ
+                    // if (currentMistakeCount > 0) currentMistakeCount--; 
                 }
                 else
                 {
-                    Word newTarget = TryFindNewTarget(letter);
-                    if (newTarget != null)
+                    // --- พิมพ์ผิด ---
+                    activeWord.ResetWord(); 
+                    if (activeWord.GetEnemyTransform() != null)
                     {
-                        activeWord = newTarget;
-                        activeWord.TypeLetter();
-                        Shoot();
+                        activeWord.GetEnemyTransform().GetComponent<WordDisplay>().SetWord(activeWord.text);
                     }
-                    else
+                    
+                    if (activeWord.isBoss) 
                     {
-                        // พิมพ์ผิด -> Reset
-                        activeWord.ResetWord(); 
-                        if (activeWord.GetEnemyTransform() != null)
+                        if (playerHealth != null) playerHealth.TakeDamage(10); 
+
+                        // ✅ Logic ใหม่: เช็คโควต้าก่อน
+                        currentMistakeCount++; // บวกจำนวนครั้งที่ผิด
+
+                        if (currentMistakeCount > safeMistakes)
                         {
-                            activeWord.GetEnemyTransform().GetComponent<WordDisplay>().SetWord(activeWord.text);
+                            // ถ้าผิดเกินโควต้าแล้ว ค่อยเริ่มสุ่ม
+                            float roll = Random.Range(0f, 100f);
+                            Debug.Log($"🎲 Mistake #{currentMistakeCount} | Roll: {roll} vs Chance: {currentJumpscareChance}");
+
+                            if (roll < currentJumpscareChance)
+                            {
+                                // --- แจ็กพอตแตก! ---
+                                if (activeWord.GetEnemyTransform() != null)
+                                {
+                                    EnemyMovement bossMove = activeWord.GetEnemyTransform().GetComponent<EnemyMovement>();
+                                    if (bossMove != null) bossMove.TriggerBossJumpscare();
+                                }
+                                
+                                // รีเซ็ตทุกอย่าง
+                                currentJumpscareChance = startChance;
+                                currentMistakeCount = 0; 
+                                Debug.Log("👻 BOO! Resetting count.");
+                            }
+                            else
+                            {
+                                // รอดไป! เพิ่มความเสี่ยงรอบหน้า
+                                currentJumpscareChance += chanceStep;
+                                if (currentJumpscareChance > 100f) currentJumpscareChance = 100f;
+                            }
                         }
-                        if (activeWord.isBoss && playerHealth != null) playerHealth.TakeDamage(10); 
-                        activeWord.TriggerWrongTyping(); 
+                        else
+                        {
+                            Debug.Log($"🛡️ Safe Mistake ({currentMistakeCount}/{safeMistakes})");
+                        }
                     }
+                    
+                    activeWord.TriggerWrongTyping(); 
                 }
             }
             else
@@ -61,7 +111,7 @@ public class WordManager : MonoBehaviour
                 }
             }
 
-            // เช็คว่าตายหรือยัง
+            // ... (ส่วนเช็คตาย เหมือนเดิม ไม่ต้องแก้) ...
             if (activeWord != null && activeWord.WordTyped())
             {
                 activeWord.hp--; 
@@ -70,50 +120,22 @@ public class WordManager : MonoBehaviour
                 {
                     activeWord.ResetWord(); 
                     if (activeWord.GetEnemyTransform() != null)
-                    {
                         activeWord.GetEnemyTransform().GetComponent<WordDisplay>().SetWord(activeWord.text);
-                    }
                     activeWord = null; 
                 }
                 else
                 {
-                    // --- ตายจริง (HP=0) ---
-                    
-                    if (activeWord.isBoss && GameManager.instance != null) GameManager.instance.Victory();
-
-                    if (activeWord.isSpecial)
-                    {
-                        ProgressManager pm = FindObjectOfType<ProgressManager>();
-                        if (pm != null) pm.AddProgress();
-                    }
-
                     if (activeWord.GetEnemyTransform() != null)
                     {
-                        // --- เพิ่ม Logic: ตรวจสอบว่าเป็น Splitter หรือไม่ ---
                         EnemyMovement em = activeWord.GetEnemyTransform().GetComponent<EnemyMovement>();
-                        if (em != null && em.type == EnemyMovement.EnemyType.Splitter)
-                        {
-                            // ถ้าเป็น Splitter ให้เสกลูกน้อง 2 ตัวตรงจุดตาย
-                            WordSpawner spawner = FindObjectOfType<WordSpawner>();
-                            if (spawner != null)
-                            {
-                                spawner.SpawnMinionAt(activeWord.GetEnemyTransform().position);
-                                spawner.SpawnMinionAt(activeWord.GetEnemyTransform().position);
-                            }
-                        }
-                        // ------------------------------------------------
-
+                        if (em != null) em.OnDeath(); 
+                        
                         WordDisplay display = activeWord.GetEnemyTransform().GetComponentInChildren<WordDisplay>();
-                        if (display != null)
-                        {
-                            display.DestroyEnemy(); // ตัวนี้จะไปรัน Logic เกิดตัวเล็กให้เอง
-                        }
+                        if (display != null) display.DestroyEnemy(); 
                     }
                     
                     if (deathVFXPrefab != null && activeWord.GetEnemyTransform() != null)
-                    {
                         Instantiate(deathVFXPrefab, activeWord.GetEnemyTransform().position, Quaternion.identity);
-                    }
                     
                     words.Remove(activeWord);
                     activeWord = null;
@@ -122,6 +144,7 @@ public class WordManager : MonoBehaviour
         }
     }
     
+    // ... (ฟังก์ชันอื่นๆ เหมือนเดิม) ...
     Word TryFindNewTarget(char letter)
     {
         foreach (Word word in words)

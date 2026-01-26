@@ -2259,7 +2259,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4d5e46980bcdb943bb69984ecf8f077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  testBossMode: 0
+  testBossMode: 1
   bossPrefab: {fileID: 759368613755820644, guid: d7320122e926259459574e6dc8cca7e3, type: 3}
   bossWord: "\u0E44\u0E2D\u0E40\u0E1E\u0E35\u0E22\u0E27\u0E21\u0E36\u0E07\u0E1A\u0E34\u0E14\u0E2D\u0E35\u0E01\u0E40\u0E40\u0E25\u0E49\u0E27\u0E19\u0E30\u0E16\u0E32\u0E21\u0E40\u0E2D\u0E07\u0E14\u0E34\u0E1A\u0E14\u0E35\u0E27\u0E48\u0E32\u0E44\u0E1B\u0E2B\u0E21\u0E39\u0E17\u0E30\u0E15\u0E2D\u0E19\u0E44\u0E2B\u0E19\u0E41\u0E21\u0E48\u0E07\u0E40\u0E2D\u0E49\u0E22\u0E1A\u0E34\u0E14\u0E42\u0E14\u0E19\u0E15\u0E48\u0E2D\u0E22\u0E1A\u0E34\u0E14\u0E17\u0E33\u0E44\u0E21\u0E22\u0E31\u0E07\u0E1A\u0E34\u0E14\u0E2D\u0E35\u0E01\u0E1A\u0E34\u0E14\u0E40\u0E40\u0E07\u0E49\u0E19\u0E40\u0E40\u0E07\u0E49\u0E19"
   bossUIText: {fileID: 1408231849}
@@ -2328,6 +2328,9 @@ MonoBehaviour:
   shootPoint: {fileID: 163054797}
   playerHealth: {fileID: 1428502024}
   deathVFXPrefab: {fileID: 6052842361389789346, guid: 23eb8ff44f76cbf4ca7901a9ead95dff, type: 3}
+  safeMistakes: 5
+  startChance: 30
+  chanceStep: 20
 --- !u!4 &1088451950
 Transform:
   m_ObjectHideFlags: 0

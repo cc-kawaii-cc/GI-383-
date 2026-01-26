@@ -125,17 +125,26 @@ public class EnemyMovement : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(Random.Range(4f, 6f));
-            int skill = Random.Range(0, 5); 
+            
+            // ลดจำนวนสกิลสุ่มเหลือ 4 ท่า (0-3) เพราะเราตัด Jumpscare ออกไปไว้ที่การพิมพ์ผิดแล้ว
+            int skill = Random.Range(0, 4); 
             
             switch (skill)
             {
                 case 0: SummonMinions(); break;
                 case 1: ShootVomit(); break;
                 case 2: BossTeleport(); break;
-                case 3: StartCoroutine(BossCastDarkness()); break;
-                case 4: StartCoroutine(BossRapidSpit()); break;
+                // case 3 เดิมคือ Jumpscare เราลบออก
+                case 3: StartCoroutine(BossRapidSpit()); break; // เลื่อน RapidSpit มาแทนที่
             }
         }
+    }
+
+    // เพิ่มฟังก์ชันนี้: เพื่อให้ WordManager เรียกใช้เมื่อพิมพ์ผิด
+    public void TriggerBossJumpscare()
+    {
+        // เรียกใช้ Coroutine เดิมที่มีอยู่แล้ว
+        StartCoroutine(BossCastDarkness());
     }
 
     IEnumerator BossCastDarkness()
@@ -348,5 +357,27 @@ public class EnemyMovement : MonoBehaviour
             if (wordCanvasGroup != null) wordCanvasGroup.alpha = a;
             yield return null;
         }
+    }
+    // เพิ่มฟังก์ชันนี้ลงใน EnemyMovement.cs
+    public void OnDeath()
+    {
+        // 1. ถ้าเป็นบอสตาย -> ชนะเกม
+        if (type == EnemyType.Boss)
+        {
+            if (GameManager.instance != null) GameManager.instance.Victory();
+        }
+        // 2. ถ้าเป็นตัว Splitter -> เสกตัวลูก 2 ตัว
+        else if (type == EnemyType.Splitter)
+        {
+            WordSpawner spawner = FindObjectOfType<WordSpawner>();
+            if (spawner != null)
+            {
+                spawner.SpawnMinionAt(transform.position);
+                spawner.SpawnMinionAt(transform.position);
+            }
+        }
+        
+        // 3. ถ้าเป็นตัวอื่นๆ (เช่น KillMe, Medium) -> ก็ให้จบการทำงานตรงนี้ (เตรียมตัวโดนทำลาย)
+        // (Logic การ Destroy object จะถูกทำต่อใน WordManager หรือ WordDisplay เอง)
     }
 }
