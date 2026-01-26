@@ -1,39 +1,63 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using TMPro; // อย่าลืมใส่บรรทัดนี้เพื่อใช้ TextMeshPro
+using TMPro;
 
 public class MainMenu : MonoBehaviour
 {
-    [Header("Settings")]
-    public string gameplaySceneName = "SampleScene"; // ชื่อ Scene เกมหลักของคุณ (แก้ให้ตรง)
-
     [Header("UI References")]
-    public TextMeshProUGUI progressText; // ลาก Text มาใส่เพื่อโชว์ % เนื้อเรื่อง
+    public TextMeshProUGUI progressText; 
+    public GameObject languageSelectionPanel; // 1. ลาก Panel เลือกภาษามาใส่ตรงนี้
 
     void Start()
     {
-        // โหลดข้อมูลความคืบหน้า (ถ้าไม่มีให้เป็น 0)
         UpdateProgressUI();
+        
+        // ซ่อนหน้าต่างเลือกภาษาไว้ก่อน (กันพลาด)
+        if (languageSelectionPanel != null) 
+            languageSelectionPanel.SetActive(false);
     }
 
-    // --- ปุ่ม Start Game ---
-    public void PlayGame()
+    // --- แก้ไข: ปุ่ม Start Game เดิม ให้เปิดหน้าต่างเลือกภาษาแทน ---
+    public void OnStartGameClicked()
     {
-        // โหลด Scene เกม
-        SceneManager.LoadScene(gameplaySceneName);
+        if (languageSelectionPanel != null)
+        {
+            languageSelectionPanel.SetActive(true); // โชว์หน้าต่างเลือกภาษา
+        }
+        else
+        {
+            Debug.LogError("ลืมลาก Language Panel ใส่ใน Script ครับ!");
+        }
     }
 
-    // --- ปุ่ม Quit Game ---
+    // --- ปุ่มกากบาท (Back) ในหน้าเลือกภาษา ---
+    public void CloseLanguagePanel()
+    {
+        if (languageSelectionPanel != null) 
+            languageSelectionPanel.SetActive(false);
+    }
+
+    // --- ปุ่มเลือกภาษา THAI (กดแล้วเข้า scene ไทย) ---
+    public void PlayGameThai()
+    {
+        SceneManager.LoadScene("GameScene_TH"); // ตรวจสอบชื่อ Scene ให้ตรงเป๊ะๆ
+    }
+
+    // --- ปุ่มเลือกภาษา ENGLISH (กดแล้วเข้า scene อังกฤษ) ---
+    public void PlayGameEnglish()
+    {
+        SceneManager.LoadScene("GameScene_EN"); // ตรวจสอบชื่อ Scene ให้ตรงเป๊ะๆ
+    }
+
     public void QuitGame()
     {
         Debug.Log("Exiting Game...");
         Application.Quit();
     }
 
-    // --- ปุ่ม Reset Progress (เอาไว้เทส) ---
     public void ResetProgress()
     {
-        PlayerPrefs.DeleteAll(); // ลบเซฟทั้งหมด
+        PlayerPrefs.DeleteAll(); 
         UpdateProgressUI();
         Debug.Log("Save Data Cleared!");
     }
@@ -42,9 +66,6 @@ public class MainMenu : MonoBehaviour
     {
         if (progressText != null)
         {
-            // ดึงค่าจาก ProgressManager ที่เราทำไว้ (Key ต้องตรงกัน)
-            // สมมติใน ProgressManager คุณใช้ PlayerPrefs key ชื่อ "StoryProgress" หรือคล้ายกัน
-            // ถ้ายังไม่ได้ทำเซฟ ใช้ key มาตรฐานไปก่อน
             int progress = PlayerPrefs.GetInt("StoryProgress", 0); 
             progressText.text = "Story Unlocked: " + progress + "%";
         }
