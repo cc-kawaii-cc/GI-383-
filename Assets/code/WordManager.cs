@@ -28,121 +28,125 @@ public class WordManager : MonoBehaviour
     }
 
     void Update()
+{
+    CleanUpDeadWords();
+
+    string input = Input.inputString;
+    if (string.IsNullOrEmpty(input)) return;
+
+    foreach (char letter in input)
     {
-        CleanUpDeadWords();
+        // 1. ตรวจสอบว่าเป้าหมายเดิมยังอยู่ไหม
+        if (activeWord != null && activeWord.GetEnemyTransform() == null) activeWord = null;
 
-        string input = Input.inputString;
-        if (string.IsNullOrEmpty(input)) return;
-
-        foreach (char letter in input)
+        if (activeWord != null)
         {
-            if (activeWord != null && activeWord.GetEnemyTransform() == null) activeWord = null;
-
-            if (activeWord != null)
+            if (activeWord.GetNextLetter() == letter)
             {
-                if (activeWord.GetNextLetter() == letter)
-                {
-                    // --- พิมพ์ถูก ---
-                    activeWord.TypeLetter();
-                    Shoot();
-                    
-                    // (ทางเลือก) ถ้าอยากให้พิมพ์ถูกแล้วลดความเสี่ยง ให้เปิดบรรทัดล่างนี้ครับ
-                    // if (currentMistakeCount > 0) currentMistakeCount--; 
-                }
-                else
-                {
-                    // --- พิมพ์ผิด ---
-                    activeWord.ResetWord(); 
-                    if (activeWord.GetEnemyTransform() != null)
-                    {
-                        activeWord.GetEnemyTransform().GetComponent<WordDisplay>().SetWord(activeWord.text);
-                    }
-                    
-                    if (activeWord.isBoss) 
-                    {
-                        if (playerHealth != null) playerHealth.TakeDamage(10); 
-
-                        //  Logic ใหม่: เช็คโควต้าก่อน
-                        currentMistakeCount++; // บวกจำนวนครั้งที่ผิด
-
-                        if (currentMistakeCount > safeMistakes)
-                        {
-                            // ถ้าผิดเกินโควต้าแล้ว ค่อยเริ่มสุ่ม
-                            float roll = Random.Range(0f, 100f);
-                            Debug.Log($"🎲 Mistake #{currentMistakeCount} | Roll: {roll} vs Chance: {currentJumpscareChance}");
-
-                            if (roll < currentJumpscareChance)
-                            {
-                                // --- แจ็กพอตแตก! ---
-                                if (activeWord.GetEnemyTransform() != null)
-                                {
-                                    EnemyMovement bossMove = activeWord.GetEnemyTransform().GetComponent<EnemyMovement>();
-                                    if (bossMove != null) bossMove.TriggerBossJumpscare();
-                                }
-                                
-                                // รีเซ็ตทุกอย่าง
-                                currentJumpscareChance = startChance;
-                                currentMistakeCount = 0; 
-                                Debug.Log(" BOO! Resetting count.");
-                            }
-                            else
-                            {
-                                // รอดไป! เพิ่มความเสี่ยงรอบหน้า
-                                currentJumpscareChance += chanceStep;
-                                if (currentJumpscareChance > 100f) currentJumpscareChance = 100f;
-                            }
-                        }
-                        else
-                        {
-                            Debug.Log($" Safe Mistake ({currentMistakeCount}/{safeMistakes})");
-                        }
-                    }
-                    
-                    activeWord.TriggerWrongTyping(); 
-                }
+                // --- กรณีพิมพ์ถูก ---
+                activeWord.TypeLetter();
+                Shoot();
+                
+                // (Optional) ถ้าอยากให้พิมพ์ถูกแล้วลดความเสี่ยง
+                // if (currentMistakeCount > 0) currentMistakeCount--; 
             }
             else
             {
-                activeWord = TryFindNewTarget(letter);
-                if (activeWord != null)
-                {
-                    activeWord.TypeLetter();
-                    Shoot();
-                }
+                // --- กรณีพิมพ์ผิด ---
+                HandleWrongInput(); // แยกออกมาเป็นฟังก์ชันด้านล่างเพื่อไม่ให้โค้ดรก
             }
-
-            // ... (ส่วนเช็คตาย เหมือนเดิม ไม่ต้องแก้) ...
-            if (activeWord != null && activeWord.WordTyped())
+        }
+        else
+        {
+            // --- กรณีไม่มีเป้าหมาย (หาตัวใหม่) ---
+            activeWord = TryFindNewTarget(letter);
+            if (activeWord != null)
             {
-                activeWord.hp--; 
+                activeWord.TypeLetter();
+                Shoot();
+            }
+        }
 
-                if (activeWord.hp > 0)
+        // --- ส่วนเช็คเลือด / เช็คตาย (ทำหลังจากการพิมพ์ทุกลูกอักษร) ---
+        if (activeWord != null && activeWord.WordTyped())
+        {
+            HandleEnemyDefeat(); // แยกออกมาเพื่อความสะอาดของโค้ด
+        }
+    }
+}
+
+// --- ฟังก์ชันเสริมที่แยกออกมา (เอาไปวางนอก Update ใน Class เดียวกัน) ---
+
+void HandleWrongInput()
+{
+    activeWord.ResetWord(); 
+    if (activeWord.GetEnemyTransform() != null)
+    {
+        activeWord.GetEnemyTransform().GetComponent<WordDisplay>().SetWord(activeWord.text);
+    }
+    
+    // Logic พิเศษสำหรับบอส
+    if (activeWord.isBoss) 
+    {
+        if (playerHealth != null) playerHealth.TakeDamage(10); 
+
+        currentMistakeCount++;
+
+        if (currentMistakeCount > safeMistakes)
+        {
+            float roll = Random.Range(0f, 100f);
+            if (roll < currentJumpscareChance)
+            {
+                if (activeWord.GetEnemyTransform() != null)
                 {
-                    activeWord.ResetWord(); 
-                    if (activeWord.GetEnemyTransform() != null)
-                        activeWord.GetEnemyTransform().GetComponent<WordDisplay>().SetWord(activeWord.text);
-                    activeWord = null; 
+                    EnemyMovement bossMove = activeWord.GetEnemyTransform().GetComponent<EnemyMovement>();
+                    if (bossMove != null) bossMove.TriggerBossJumpscare();
                 }
-                else
-                {
-                    if (activeWord.GetEnemyTransform() != null)
-                    {
-                        EnemyMovement em = activeWord.GetEnemyTransform().GetComponent<EnemyMovement>();
-                        if (em != null) em.OnDeath(); 
-                        
-                        WordDisplay display = activeWord.GetEnemyTransform().GetComponentInChildren<WordDisplay>();
-                        if (display != null) display.DestroyEnemy(); 
-                    }
-                    
-                    if (deathVFXPrefab != null && activeWord.GetEnemyTransform() != null)
-                        Instantiate(deathVFXPrefab, activeWord.GetEnemyTransform().position, Quaternion.identity);
-                    
-                    words.Remove(activeWord);
-                    activeWord = null;
-                }
+                currentJumpscareChance = startChance;
+                currentMistakeCount = 0; 
+            }
+            else
+            {
+                currentJumpscareChance += chanceStep;
+                if (currentJumpscareChance > 100f) currentJumpscareChance = 100f;
             }
         }
     }
+    
+    activeWord.TriggerWrongTyping(); 
+}
+
+void HandleEnemyDefeat()
+{
+    activeWord.hp--; 
+
+    if (activeWord.hp > 0)
+    {
+        // กรณีศัตรูมีหลาย HP (เช่นตัว Hard) ให้รีเซ็ตคำให้พิมพ์ใหม่
+        activeWord.ResetWord(); 
+        if (activeWord.GetEnemyTransform() != null)
+            activeWord.GetEnemyTransform().GetComponent<WordDisplay>().SetWord(activeWord.text);
+        activeWord = null; // ปลดล็อคเป้าหมายเพื่อให้เลือกตัวอื่นได้ หรือต้องกดตัวแรกใหม่
+    }
+    else
+    {
+        // กรณีตายจริง
+        if (activeWord.GetEnemyTransform() != null)
+        {
+            EnemyMovement em = activeWord.GetEnemyTransform().GetComponent<EnemyMovement>();
+            if (em != null) em.OnDeath(); 
+            
+            WordDisplay display = activeWord.GetEnemyTransform().GetComponentInChildren<WordDisplay>();
+            if (display != null) display.DestroyEnemy(); 
+        }
+        
+        if (deathVFXPrefab != null && activeWord.GetEnemyTransform() != null)
+            Instantiate(deathVFXPrefab, activeWord.GetEnemyTransform().position, Quaternion.identity);
+        
+        words.Remove(activeWord);
+        activeWord = null;
+    }
+}
     
     // ... (ฟังก์ชันอื่นๆ เหมือนเดิม) ...
     Word TryFindNewTarget(char letter)
