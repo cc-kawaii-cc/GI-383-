@@ -219,7 +219,7 @@ public class EnemyMovement : MonoBehaviour
     // ---------------------------------------------------------
     // Logic: New Monsters (ข้อ 2)
     // ---------------------------------------------------------
-
+    
     void HandleSpitterWander()
     {
         wanderTimer -= Time.deltaTime;
