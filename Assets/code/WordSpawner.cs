@@ -42,6 +42,9 @@ public class WordSpawner : MonoBehaviour
     
     [Header("Limit Settings")]
     public int maxEnemies = 15; // กำหนดจำนวนมอนสเตอร์สูงสุดในแมพ
+    [Header("Camera Spawn Settings")]
+    [Tooltip("ระยะห่างจากขอบจอออกไป (ยิ่งเยอะยิ่งไกล)")]
+    public float spawnMargin = 2f;
 
     
     // Internal Variables
@@ -214,32 +217,65 @@ public class WordSpawner : MonoBehaviour
         chanceThai = thai;
     }
 
+    // ... (ส่วน Import และตัวแปรอื่นๆ เหมือนเดิม)
+
+    // ✅ แก้ไขฟังก์ชันนี้
     Vector3 GetRandomSpawnPosition()
     {
         if (playerTransform == null) return transform.position;
 
-        Vector3 finalPos = transform.position;
-        bool foundValidPos = false;
-        int attempts = 0; 
+        Camera cam = Camera.main;
+        if (cam == null) return transform.position;
 
-        while (!foundValidPos && attempts < 10)
+        float screenHeight = 2f * cam.orthographicSize;
+        float screenWidth = screenHeight * cam.aspect;
+
+        int side = Random.Range(0, 4);
+        Vector3 spawnOffset = Vector3.zero;
+
+        switch (side)
         {
-            Vector2 randomDirection = Random.insideUnitCircle.normalized;
-            finalPos = playerTransform.position + (Vector3)(randomDirection * spawnRadius);
-            Collider2D hit = Physics2D.OverlapCircle(finalPos, 1.5f); 
-            if (hit == null) foundValidPos = true;
-            attempts++;
+            case 0: // บน
+                spawnOffset = new Vector3(Random.Range(-screenWidth / 2, screenWidth / 2), (screenHeight / 2) + spawnMargin, 0);
+                break;
+            case 1: // ล่าง
+                spawnOffset = new Vector3(Random.Range(-screenWidth / 2, screenWidth / 2), -(screenHeight / 2) - spawnMargin, 0);
+                break;
+            case 2: // ซ้าย
+                spawnOffset = new Vector3(-(screenWidth / 2) - spawnMargin, Random.Range(-screenHeight / 2, screenHeight / 2), 0);
+                break;
+            case 3: // ขวา
+                spawnOffset = new Vector3((screenWidth / 2) + spawnMargin, Random.Range(-screenHeight / 2, screenHeight / 2), 0);
+                break;
         }
+
+        Vector3 finalPos = cam.transform.position + spawnOffset;
+        finalPos.z = 0;
         return finalPos;
     }
-
-    void OnDrawGizmosSelected()
+    
+// ... (ส่วนอื่นๆ เหมือนเดิม)
+    void OnDrawGizmos()
     {
-        Vector3 center = transform.position;
-        if (Application.isPlaying && GameObject.FindGameObjectWithTag("Player") != null)
-            center = GameObject.FindGameObjectWithTag("Player").transform.position;
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(center, spawnRadius);
+        Camera cam = Camera.main;
+        if (cam == null) return;
+
+        // คำนวณขนาดจอ
+        float screenHeight = 2f * cam.orthographicSize;
+        float screenWidth = screenHeight * cam.aspect;
+
+        Vector3 camPos = cam.transform.position;
+        camPos.z = 0; // ให้เส้นอยู่ในระนาบ 2D เดียวกับเกม
+
+        // 1. วาดกรอบสีเขียว = ขอบจอที่ผู้เล่นมองเห็น
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireCube(camPos, new Vector3(screenWidth, screenHeight, 0));
+
+        // 2. วาดกรอบสีแดง = จุดที่มอนสเตอร์จะเกิด (Spawn Boundary)
+        Gizmos.color = Color.red;
+        float outerWidth = screenWidth + (spawnMargin * 2);
+        float outerHeight = screenHeight + (spawnMargin * 2);
+        Gizmos.DrawWireCube(camPos, new Vector3(outerWidth, outerHeight, 0));
     }
 
     public void SpawnMinionAt(Vector3 position)
