@@ -62,7 +62,7 @@ public class WordManager : MonoBehaviour
                     {
                         if (playerHealth != null) playerHealth.TakeDamage(10); 
 
-                        // ✅ Logic ใหม่: เช็คโควต้าก่อน
+                        //  Logic ใหม่: เช็คโควต้าก่อน
                         currentMistakeCount++; // บวกจำนวนครั้งที่ผิด
 
                         if (currentMistakeCount > safeMistakes)
@@ -83,7 +83,7 @@ public class WordManager : MonoBehaviour
                                 // รีเซ็ตทุกอย่าง
                                 currentJumpscareChance = startChance;
                                 currentMistakeCount = 0; 
-                                Debug.Log("👻 BOO! Resetting count.");
+                                Debug.Log(" BOO! Resetting count.");
                             }
                             else
                             {
@@ -94,7 +94,7 @@ public class WordManager : MonoBehaviour
                         }
                         else
                         {
-                            Debug.Log($"🛡️ Safe Mistake ({currentMistakeCount}/{safeMistakes})");
+                            Debug.Log($" Safe Mistake ({currentMistakeCount}/{safeMistakes})");
                         }
                     }
                     
