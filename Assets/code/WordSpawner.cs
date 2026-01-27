@@ -124,19 +124,19 @@ public class WordSpawner : MonoBehaviour
         else if (time >= 10f && time < 30f) 
         { 
             // 10-30 วิ: เริ่มปล่อยของ (Medium เยอะขึ้น, เริ่มมี Big/Hard)
-            SetEnemyTypeChance(small:30, med:30, big:10, mom:10, kill:10, spit:5, thai:5); 
+            SetEnemyTypeChance(small:30, med:30, big:10, mom:10, kill:10, spit:5, thai:0); 
             spawnDelay = Random.Range(1.5f, 2.5f); 
         }
         else if (time >= 30f && time < 60f) 
         { 
             // 30-60 วิ: ความยากระดับกลาง (เพิ่ม Spitter/Thai)
-            SetEnemyTypeChance(small:20, med:30, big:20, mom:5, kill:10, spit:10, thai:5); 
+            SetEnemyTypeChance(small:20, med:30, big:20, mom:5, kill:10, spit:10, thai:0); 
             spawnDelay = Random.Range(1.5f, 2.0f); 
         }
         else if (time >= 60f && time < 180f)
         {
             // 1 นาทีขึ้นไป: จัดเต็ม (ลดความเร็ว Spawn ลงนิดหน่อยเพื่อให้ผู้เล่นหายใจตามบรีฟ)
-            SetEnemyTypeChance(small:10, med:20, big:30, mom:10, kill:10, spit:10, thai:10); 
+            SetEnemyTypeChance(small:10, med:20, big:30, mom:10, kill:10, spit:10, thai:0); 
             spawnDelay = Random.Range(1.8f, 2.2f); // ปรับให้ช้าลงนิดนึงช่วงกลางเกม
         }
         else if (time >= 180f) // ครบ 3 นาที
@@ -159,7 +159,7 @@ public class WordSpawner : MonoBehaviour
         else if (roll < (chanceSmall + chanceMedium + chanceBig + chanceGhostMom)) { prefabToSpawn = ghostMomPrefab; selectedWordBank = mediumWords; }
         else if (roll < (chanceSmall + chanceMedium + chanceBig + chanceGhostMom + chancekillme)) { prefabToSpawn = killMePrefab; selectedWordBank = easyWords; }
         else if (roll < (chanceSmall + chanceMedium + chanceBig + chanceGhostMom + chancekillme + chanceSpitter)) { prefabToSpawn = spitterPrefab; selectedWordBank = mediumWords; }
-        else { prefabToSpawn = thaiMusicGhostPrefab; selectedWordBank = mediumWords; }
+        //else { prefabToSpawn = thaiMusicGhostPrefab; selectedWordBank = mediumWords; }
         
         if (prefabToSpawn == null) return;
 

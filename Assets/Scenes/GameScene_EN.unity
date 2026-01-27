@@ -119,6 +119,151 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &1871500
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1871503}
+  - component: {fileID: 1871502}
+  - component: {fileID: 1871501}
+  m_Layer: 0
+  m_Name: BGM_Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!82 &1871501
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1871500}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 0.15
+  m_Pitch: 1
+  Loop: 1
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &1871502
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1871500}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd9c3ce17e01e4941ad903d56aaca612, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  audioSource: {fileID: 1871501}
+  backgroundClip: {fileID: 8300000, guid: dab82340a9a6fe44482c8cf34781ec0f, type: 3}
+  volume: 0.1
+--- !u!4 &1871503
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1871500}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 56.942287, y: -10.815016, z: -0.9603474}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &48411462
 GameObject:
   m_ObjectHideFlags: 0
@@ -2394,7 +2539,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   testBossMode: 1
   bossPrefab: {fileID: 759368613755820644, guid: d7320122e926259459574e6dc8cca7e3, type: 3}
-  bossWord: "\u0E44\u0E2D\u0E40\u0E1E\u0E35\u0E22\u0E27\u0E21\u0E36\u0E07\u0E1A\u0E34\u0E14\u0E2D\u0E35\u0E01\u0E40\u0E40\u0E25\u0E49\u0E27\u0E19\u0E30\u0E16\u0E32\u0E21\u0E40\u0E2D\u0E07\u0E14\u0E34\u0E1A\u0E14\u0E35\u0E27\u0E48\u0E32\u0E44\u0E1B\u0E2B\u0E21\u0E39\u0E17\u0E30\u0E15\u0E2D\u0E19\u0E44\u0E2B\u0E19\u0E41\u0E21\u0E48\u0E07\u0E40\u0E2D\u0E49\u0E22\u0E1A\u0E34\u0E14\u0E42\u0E14\u0E19\u0E15\u0E48\u0E2D\u0E22\u0E1A\u0E34\u0E14\u0E17\u0E33\u0E44\u0E21\u0E22\u0E31\u0E07\u0E1A\u0E34\u0E14\u0E2D\u0E35\u0E01\u0E1A\u0E34\u0E14\u0E40\u0E40\u0E07\u0E49\u0E19\u0E40\u0E40\u0E07\u0E49\u0E19"
+  bossWord: Hail Mary, full of grace, the Lord is with you... Pray for us sinners
+    now, and at the hour of our death, Amen.
   bossUIText: {fileID: 1408231849}
   smallEnemyPrefab: {fileID: 759368613755820644, guid: 905abc24488f3a54eb794749d0379292, type: 3}
   mediumEnemyPrefab: {fileID: 759368613755820644, guid: 619f10c973eeed14890c358808fbe3e2, type: 3}
@@ -2913,10 +3059,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1720981502}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -277, y: 119}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: 578, y: 136}
+  m_SizeDelta: {x: 449.8533, y: 106.9286}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1408231849
 MonoBehaviour:
@@ -2940,7 +3086,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: bf8666aeb0ca75f4e840c95a739c4c4b, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 3672625721269678870, guid: bf8666aeb0ca75f4e840c95a739c4c4b, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -2965,14 +3111,14 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 40
-  m_fontSizeBase: 40
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
+  m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -4314,3 +4460,4 @@ SceneRoots:
   - {fileID: 58605041}
   - {fileID: 1947171740}
   - {fileID: 904907127}
+  - {fileID: 1871503}
